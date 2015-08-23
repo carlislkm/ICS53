@@ -1,0 +1,23 @@
+﻿ICS 53
+HW 7
+1. (100 pts) Write Bash scripts to do each of the following:
+   1. (10 pts) Write a script called ‘my_which’ that does the same thing as the Unix which command, but do it using a for loop over an if. Obviously, DO NOT call bash’s built-in `which` in your solution.
+   2. (40 pts) Write a script called dircheck that takes one or more directory names as argument and displays the following information about each directory argument:
+      1. display a count of the number of subdirectories anywhere under this directory.
+      2. display a count of the number of files in the directory (you my count just the files in this immediate directory or traverse the entire directory tree and count all in and below)
+      3. list all of the files in and below the directory that are zero length (you may use the ‘find’ command for this)
+      4. use ‘du’ to display the total amount of storage space (bytes or blocks - your choice) used by this directory (including all files and directories contained within)
+      5. To test your script, you should create some subdirectories, some files that are zero length, using touch, and some files that are not zero length using vi, output redirection, or cp.
+      6. Example of use
+$ dircheck  ~/hw ~/bin
+   1. (50 pts) Write a bash script called `my_find` that does a subset of the find command. Obviously, DO NOT use `find` in your solution. You must handle (at least) the following options as described in the manual for find (and these will be tested for grading): -name (you should handle patterns for names), -type (f and d), -print, and -exec (you must handle {} for exec (hint: use sed), but you may assume the exec, if present, is always the last argument and, therefore, need not be terminated by a semicolon. Note also the predicates can come in any order and are implicitly short circuit ANDed together. You need not handle -o which is OR.  Here is a sample command:
+$ my_find $HOME -name ‘*.o’ -type f -print -exec /bin/mv {} ~/.TRASH \;
+1. (up to 40 pts back on HW6) Command shell. If you did not get the shell working last week, get it working this week.  In either case, add pipes and background jobs. Only the first command in a pipeline can have its input redirected to come from a file and only the last command in a pipeline can have its output redirected to a file, so you can execute these commands:
+% echo Hello World | cat > newOutputFile
+% cat /usr/share/dict/linux.words > existingInputFile
+% cat < existingInputFile | tee newOutputFile1 > newOutputFile2
+% cat < existingInputFile | tee newOutputFile1 > newOutputFile2 &
+% cat < existingInputFile | tr A-Z a-z | tee newOutputFile1 | tr a-z A-Z > newOutputFile2
+% cat < existingInputFile | tr A-Z a-z | tee newOutputFile1 | tr a-z A-Z > newOutputFile2 &
+NOTE: Periodically check your processes from the shell with ps aux, and kill any run-away processes with kill -9 pid.
+What to submit: Your programs and your Makefile.

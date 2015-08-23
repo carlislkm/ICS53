@@ -1,0 +1,962 @@
+﻿ANSI C
+Introduction
+Raymond Klefstad, Ph.D.
+________________
+ANSI C
+* an general purpose progrogramming language
+* major features include:
+   * thin vaneer over assembly language
+   * allows machine access (pointers, addresses, register, assembly)
+   * simple (relatively)
+________________
+I/O
+* Simple Input and Output
+#include <stdio.h>
+int main()
+{
+ int i = 40;
+ printf("Enter a number:\n");
+ scanf("%d", &i);
+ printf("I is %d\n", i);
+ return 0;
+}
+
+* #include brings in declarations
+* & in front of i gives its address so scanf can modify i
+________________
+Functions
+   * similar to a mathematical function
+   * has 4 parts:
+   * a name
+   * a list of formal parameters
+   * a return type
+   * a compound statement to compute and return the result value
+   * EG 
+double square( double x )
+{
+ return x * x;
+}
+________________
+The  main function
+      * Every ANSI C program must have one function named  main
+      * when you run your program, main is called (on writing main)
+#include <stdio.h>
+int main() //  int is the  exit status for main
+{
+ printf("Hello Everyone!\n");
+ return 0; // 0 means program terminated  ok
+}
+________________
+Declaring Functions
+         * called a  function declaration or  function prototype 
+double average( double x, double y );
+double toFarenheight( double centegradeTemp );
+double toCentegrade( double farenheightTemp );
+________________
+Defining Functions
+            * called a  function definition 
+double average( double x, double y )
+{
+ return ( x + y ) / 2.0;
+}
+double toFarenheight( double centegradeTemp )
+{
+ return 9.0 * centegradeTemp / 5.0 + 32.0;
+}
+double toCentegrade( double farenheightTemp )
+{
+ return 5.0 * ( farenheightTemp - 32.0 ) / 9.0;
+}
+
+            * a function definition also acts as a function declaration
+________________
+Using Functions
+               * called a  function call 
+int main()
+{
+ double x = 10.5;
+ double y = 32.6;
+ double z = average( x, y );
+ double centegradeTemp = 22.3;
+ double farenheightTemp = toFarenheight( centegradeTemp );
+ printf("%f\n", toFarenheight( centegradeTemp + 2.0 ));
+ printf("%f\n", average( toFarenheight( 29.7 ),
+         toFarenheight( centegradeTemp ) ) );
+ return 0;
+}
+
+               * generally, a function must be  declared before it is  called
+________________
+Function Parameters
+                  * formals are those given in the definition
+                  * x and y are the  formal parameters for average 
+double average( double x, double y )
+{
+ return ( x + y ) / 2.0;
+}
+
+                  * actuals are those supplied in a call
+                  * 1.0  and 2.0*x are the  actual parameters for this call to average below
+double x = 5.0;
+double z = average( 1.0, 2.0*x );
+________________
+The Return Statement
+                     * causes a value to be returned to the function caller immediately
+                     * type of return expression must match declared return type
+                     * EG 
+float square(float x)
+{
+ float result = x * x;
+ printf("Hello there!\n");
+ return result;
+ printf("Hello there again!\n"); // never printed
+}
+int main()
+{
+ printf("%f\n", square( 2.0 ));
+ printf("%f\n", square( square( 2.0 ) ) );
+ return 0;
+}
+________________
+Primitive Data Types
+                        * foundational types are  built-in or  pre-defined
+                        * every data type has a size (in bytes) and a range of values
+                        * includes integral, floating point, character and character string types
+________________
+The Integral Types
+                        * correspond to whole integers
+                        * kinds of integral types:
+                        * char, 1 byte, -128 through 127
+                        * short, 2 bytes, -32768 through 32767
+                        * int, machine word size, now 32 bits
+                        * long, 4 bytes, -2147483648 through 2147483647
+                        * also unsigned versions of all
+                        * example literals 
+0
+1
+-1
+-1234567
+11 // decimal 11
+011 // octal 9
+0x11 // hex 17
+________________
+The Floating Point Types
+                           * corresponds to floating point real numbers
+                           * three kinds of floating point types:
+                           * float (usually 4 bytes)
+                           * double (usually 8 bytes)
+                           * long double (usually 8 bytes)
+                           * example literals 
+1.0
+-3.000001e-10
+30.01E40
+________________
+The Character Type
+                              * represents an ASCII character code
+                              * requires one byte
+                              * range of values 
+0 to 255
+
+                              * example literals 
+'\0' null character 0
+'\n' newline (or linefeed) 10
+'\r' return 13
+'\t' tab 9
+' ' space 32
+'0' 48
+'A' 65
+'a' 97
+________________
+The Character String Type
+                                 * represents a sequence of characters
+                                 * usually declared as a char * 
+char * s = "Hello";
+
+                                 * example literals 
+char * t = "Hello world!";
+printf("This is another character string.\n");
+printf("%s\n", t); // prints: Hello World!
+
+                                 * we will learn all about character strings later
+________________
+Variables
+                                    * variables must be declared before they are used
+                                    * variable declaration with initialization 
+int numberOfStudents = 30;
+int automobileVelocity = 0;
+
+                                    * assignment operator changes the value in a variable 
+numberOfStudents = 0; // got rid of all the students
+automobileVelocity += 20; // accelerated the auto
+________________
+Symbolic Constants
+                                       * constants have a fixed value 
+ #define PI 3.1415926536
+#define NEWLINE '\n'
+
+                                       * it is good style to name literal constants 
+return 3.14159*r*r;
+return PI*r*r;
+________________
+Simple Operators
+                                          * Numeric Operators
+                                          * +, -, *, /, %, unary +,-
+                                          * Assignment Operators (modifies state of object)
+                                          * =, +=, -=, *=, /=, %=, ++, -- 
+velocity = ( acceleration * time * time ) / 2.0;
+________________
+Using Operators Properly
+                                             * precedence
+                                             * associativity
+                                             * parenthesis may over-ride
+                                             * memorize these operators, precedence, and associativity
+                                             * from highest to lowest
+                                             * ++ -- (unary) + -
+                                             * * / %
+                                             * + -
+                                             * = += -= *= /= %=
+________________
+Statements
+                                             * Declaration Statements
+                                             * introduces a new variable
+                                             * variable is in scope to the end of enclosing block 
+int main()
+{
+ double d = 2 * PI;
+ printf("%f\n", d);
+ return 0;
+}
+________________
+Expression Statements
+                                                * any expression may be used as a statement
+                                                * the value is discarded 
+int main()
+{
+ double PI = 3.14159;
+ double d = 2.0 * PI;
+ printf("f\n", d);
+ d = d / 2.0;
+ square( 2.0 ); // be careful of this mistake
+ printf("%f\n", d);
+ return 0;
+}
+________________
+Other Statements
+                                                   * if, switch, while, for, return, break
+                                                   * you can declare local variables in loops 
+int main()
+{
+ for ( int i=0; i<10; ++i )
+   printf(“%d\n”, i);
+ for ( int i=10; i>=0; --i )
+   printf("%d\n", i);
+ return 0;
+}
+________________
+Scoping Rules
+                                                      * a function's parameters are  in scope only within the function body
+                                                      * we say they are  local to the function body
+                                                      * any variable declared inside a function is also local to the function 
+int f( int a, int j ) // a and j are now in scope
+{
+ int i = 10; // i is now in scope
+ {
+   int j = i; // new j is in scope and hides parameter j
+   int i = 30; // this new i is in scope and hides outer i
+   printf("%d\n", i * j); // refers to inner i and j
+ } // inner j and i are now out of scope
+ printf("%d\n", i);
+ return a + j + i; // refers to the parameters and outer i
+} // a, j, i are now out of scope
+int main()
+{
+ int a = 10;  // a is in scope
+ int i = 20;  // i is in scope
+ printf("%d\n", f( i, a )); // calls f with actual values 20 and 10
+ return 0;
+} // a and i are now out of scope
+________________
+Output
+                                                         * output is done via printf function
+                                                         * EG 
+int main()
+{
+ printf("Hello");
+ printf("%d", 10 * 10);
+ printf("%c", 'A');
+ printf("%f", 3.14159);
+ ...
+}
+________________
+Input
+                                                            * input is done via scanf function
+                                                            * uses address of parameter to modify its value
+                                                            * it waits for a value to be entered (may require a return/enter)
+                                                            * EG 
+int main()
+{
+ int i;
+ double d;
+ char c;
+ scanf(“%d”, &i);  // reads string of digits as integer
+ scanf(“%f”, &d); // reads digits, decimal as a real number
+ scanf(“%c”, &c); // reads a single character
+ ...
+}
+________________
+Files and Libraries
+                                                               * .h files include function declarations
+                                                               * .c files include definitions of functions and variables
+                                                               * .c files typically #include the .h files they use
+                                                               * a .h file must be included where its declarations are used
+                                                               * each .c file is compiled to object module
+                                                               * object modules are linked together to form a program
+________________
+
+
+The if Statement
+                                                               * conditional execution of a statement 
+int main()
+{
+ int a = 1;
+ int b = 2;
+ if ( a < b )
+   printf("a < b\n");
+ else if ( a > b )
+   printf("a > b\n");
+ else
+   printf("a == b\n");
+ if ( a > 0 )
+   printf("a is positive\n");
+}
+________________
+Nesting if Statements
+                                                                  * else's match nearest unmatched if
+                                                                  * indentation is not considered (be careful!) 
+int maxOfThree( int a, int b, int c )
+{
+ if ( a < b )
+   if ( b < c )
+     return c;
+   else
+     return b;
+ else if ( a < c )
+   return c;
+ else
+   return a;
+}
+________________
+if Statement Caveats
+                                                                     * a syntax error that changes meaning of if statement 
+if ( e ); // extra semicoln means empty statements
+ printf("Hello\n"); // prints "Hello" even if e is false
+
+                                                                     * an awkward use of if statement 
+if ( e )
+ ; // nothing
+else
+ printf("Hello\n");
+
+                                                                     * natural, but very harmful, mistake 
+int a = 0;
+if ( a = 0 ) 
+ printf("Hello\n"); // never happens! Why?
+
+                                                                     * another awkward use of if statement 
+if ( a < b )
+ return true;
+else
+ return false;
+                                                                     * better to say
+                                                                        * return a < b;
+________________
+The switch Statement
+                                                                        * for selecting among a set of integral values 
+int main()
+{
+ int i = getIntegerFromUser();
+ printf("Some stuff here\n");
+ switch ( i )
+ {
+   case 1:
+   case 3:
+   case 5:
+   case 7:
+   case 9:
+     printf("%d is odd\n", i);
+     break;
+   case 0:
+   case 2:
+   case 4:
+   case 6:
+   case 8:
+     printf("%d is even\n", i);
+     break;
+   default:
+     printf("%d isn't in range 0 to 9\n", i);
+     break;
+ }
+ printf("Some more stuff here\n");
+}
+________________
+Another switch Statement Example
+                                                                           * break isn't required with return 
+bool isDigit( char c )
+{
+ switch ( c )
+ {
+   case '0':
+   case '1':
+   case '2':
+   case '3':
+   case '4':
+   case '5':
+   case '6':
+   case '7':
+   case '8':
+   case '9':
+     return true;
+   default:
+     return false;
+ }
+}
+________________
+switch Statement Caveats
+                                                                              * forgetting the break! 
+int main()
+{
+ int score = getScoreFromUser();
+ char grade = computeStudentsGrade( score );
+ switch ( grade )
+ {
+   case 'A':
+     printf("Excellent!\n");
+   case 'B':
+     printf("Good.\n");
+   case 'C':
+     printf("Fair - just passed.\n");
+   case 'D':
+     printf("Poor - See you next quarter.\n");
+   case 'F':
+     printf("Failed - off to McDonalds.\n");
+   default:
+     printf("Invalid Grade %d\n", grade);
+ }
+}
+________________
+Another switch Statement Caveat
+                                                                                 * There are no ranges for integral values 
+bool isDigit(char c)
+{
+ switch ( c )
+ {
+   case '0'-'9': // will subtract '9' from '0'
+     return true;
+   default:
+     return false;
+ }
+}
+
+                                                                                 * Must be listed separately 
+bool isDigit(char c)
+{
+ switch ( c )
+ {
+   case '0':
+   case '1':
+   case '2':
+     /// do something here
+   default:
+     return false;
+ }
+}
+________________
+The Concept of Iteration
+                                                                                    * also called `looping'
+                                                                                    * allows repeating a similar action several times
+                                                                                    * the  break statement will exit any loop
+                                                                                    * the  return statement will also exit the loop
+________________
+The for Statement
+                                                                                    * the most common loop statement
+                                                                                    * Natural for initializing, testing, then advancing
+                                                                                    * abstract examples 
+for ( each student, s, in this class )
+ assignGradeTo( s );
+for ( each day, d, of the quarter )
+ studyHardOnDay( d );
+for (each station, s, on the radio tuner )
+{
+ tuneTo( radio, s );
+ if ( youLikeTheSong( listen( radio ) )
+   break; /// terminates this for loop
+}
+for ( each integer, i, in the range 0 to 9 )
+ printf("%d\n", i);
+________________
+                                                                                       * real examples 
+// print out numbers 0 through 9
+for (int i = 0;i < 10; ++i)
+printf("%d\n", i);
+// read 10 integers from the input and print the sum
+int main()
+{
+ int valueRead = 0;
+ int sumTotal = 0;
+ for ( int i = 0; i < 10; i++ )
+ {
+   scanf("%d", &valueRead);
+   sumTotal += valueRead;
+ }
+ printf("The total is: %d\n", sumTotal);
+}
+________________
+The while Statement
+                                                                                          * Natural for testing BEFORE doing an action that involves repetition
+                                                                                          * EG 
+while ( isTooSour( coolade ) )
+   addATeaspoonOfSugar( coolade );
+while ( waterIsTooCold( bathtub ) )
+   addAGallonOfHotWater( bathtub );
+while ( ! understandTheHomeworkAssignment( student ) )
+{
+   readTheHomeworkHandout( student );
+   askQuestions( student, TA );
+}
+while ( isStillAwake( student ) )
+   study( student );
+________________
+The do-while Statement
+                                                                                             * Natural for doing an action then testing for completion before repetition
+                                                                                             * EG 
+do
+    turnIgnition( car );
+while ( ! started( car ) );
+do
+    pressANumber( phone );
+while ( ! haveAConnection( phone ) );
+do
+{
+    readTheHomeworkHandout( student );
+    askSomeQuestions( student, TA );
+} while ( ! understands( student, materialForWeek( w ) ) );
+do
+    eat( person, pintOfIceCream );
+while ( !sick( person ) );
+________________
+Nested loops
+                                                                                                * EG // print out a calendar 
+#define JAN 1
+#define DEC 12
+int days_per_month[]={0,31,29,31,30,31,30,31,31,30,31,30,31};
+int main()
+{
+ for ( int y = 2015; y <= 2020; y++ )
+   for ( int m = JAN; m <= DEC; m++ )
+   {
+     for ( int d = 1; d <= days_per_month[m]; d++ )
+         printf( "%d / %d / %d ", m, d, y );
+     printf("\n");
+   }
+}
+________________
+Loop Caveats
+                                                                                                   * loop control variable is only in scope over loop body 
+for (int i = 0; i < 10; i++ )
+   printf( "%d ", i );
+printf( "%d\n", i ); /// i is no longer in scope
+
+                                                                                                   * some errors may cause an infinite loop 
+for (int i = 0; i < 10; i+1 ) /// i+1 is not advancing
+   printf( "%d ", i );
+...
+int i; /// may forget to initialize
+while ( i < 10 )
+   printf( "%d ", i ); /// not advancing!
+
+                                                                                                   * some errors may cause wrong values for i or incorrect number of loops 
+for (int i = 0; i <= 10; i++ ) /// wrong < operator
+   printf("%d ", i);
+...
+for (int i = 1; i < 10; i++ ) /// wrong initial value
+   printf("%d ", i);
+________________
+Simple Arrays
+                                                                                                      * a fixed size, single-dimensional array of elements of the same type
+                                                                                                      * EG an array of three integers 
+int a[3] = {0, 1, 2};
+
+                                                                                                      * processed naturally with a for loop 
+for ( int i = 0; i < 3; i++ )
+ a[i] += 5; // add 5 to each element of array a
+
+                                                                                                      * can access individual elements directly 
+a[2] = a[0]; // assign value at a[0] into memory at a[2]
+________________
+                                                                                                         * can print them out 
+for ( int i = 0; i < 3; i++ )
+ printf( "%d\n", a[i] );
+
+                                                                                                         * you must keep track of the array size 
+#define A_LENGTH 3
+int a[A_LENGTH];
+void print()
+{
+   for ( int i = 0; i < A_LENGTH; i++ )
+     printf( "%d\n", a[i] );
+}
+
+________________
+Extended Example
+                                                                                                            * EG TimeSheet program 
+enum Day {SUN, MON, TUE, WED, THU, FRI, SAT, DAYS_PER_WEEK}
+int hoursWorked[DAYS_PER_WEEK];
+initTimeSheet()
+{
+   for ( int i = 0; i < DAYS_PER_WEEK; i++ )
+     hoursWorked[i] = 0;
+}
+void print()
+{
+   for ( Day i = SUN; i < DAYS_PER_WEEK; i++ )
+     printf("On day %d worked %d hours\n", i, hoursWorked[i]);
+}
+void recordHours(int i, int hours)
+{
+   assert( i >= 0 && i < DAYS_PER_WEEK );
+   assert( hours >= 0 );
+   hoursWorked[i] = hours;
+}
+int totalHours()
+{
+   int totalHours = 0;
+   for ( int i = 0; i < DAYS_PER_WEEK; i++ )
+     totalHours += hoursWorked[i];
+   assert( totalHours >= 0 );
+   return totalHours;
+}
+int main()
+{
+ initTimeSheet();
+ recordHours(MON, 8);
+ recordHours(TUE, 9);
+ recordHours(WED, 6);
+ recordHours(THU, 9);
+ recordHours(FRI, 4);
+ print();
+ printf("Worked %d total hours this week\n", totalHours());
+ return 0;
+}
+________________
+Character Arrays (AKA character strings)
+                                                                                                               * character strings are arrays of characters terminated by '\0'
+                                                                                                               * tricky thing is you need an extra element for the terminator
+                                                                                                               * Three examples (of the string containing "abc") 
+char s1[4] = {'a','b','c','\0'};
+char s2[4] = "abc";
+char s3[] = "abc";
+________________
+Searching a character string for a specified character
+                                                                                                                  * to find the index of an element containing a specified value 
+int findIndexOfChar(char c, char s[])
+{
+ for ( int i = 0; s[i] != '\0'; i++ )
+   if ( s[i] == c )
+     return i;
+ return -1;
+}
+
+                                                                                                                  * example of use 
+int main()
+{
+ char s[] = "Hello There";
+ int posT = findIndexOfChar( 'T', s );
+ if ( posT == -1 )
+   printf("T is not in %s\n", s);
+ else
+   printf("T is at position %d\n", posT);
+ s[posT] = 'W';
+ printf("%s\n", s); // prints: Hello Where
+}
+________________
+String Library Functions
+                                                                                                                     * important low-level C-string utilities 
+ #include <string.h>
+int          strlen(char s[]);
+int          strcmp(char s1[], char s2[]);
+char [] strdup(char s[]);
+char [] strcpy(char s1[], char s2[]);
+char [] strcat (char s1[], char s2[]);
+________________
+Pointers and Addresses
+                                                                                                                        * pointers contain the address of some object
+                                                                                                                        * allow access to that object
+                                                                                                                        * can have multiple pointers to an object 
+int i = 10;
+
+                                                                                                                        * a pointer contains the address of some object 
+int * p = & i; // & gives address of object i
+int * q = & i;
+i = 50; // changes i directly
+*p = 60; // changes i indirectly
+*q = 70; // changes i indirectly
+________________
+                                                                                                                           * pointers can be changed to point to other objects 
+int k = 20;
+p = & k; // p now points to k
+*p = 60; // changes k indirectly
+
+                                                                                                                           * zero is used for null address (means pointing to nothing) 
+p = 0; // or NULL
+
+                                                                                                                           * indirection through null address is an error 
+*p = 100; // should cause run-time error
+
+________________
+
+
+                                                                                                                              * a pointer parameter can be used to “pass by reference”
+void get_size(int *ip, int *jp)
+        {
+                printf(“Enter two integers:\n:”)
+                scanf(“%d %d”, ip, jp);
+        }
+        int main()
+        {
+int i, j;
+                get_size(&i, &j);
+                printf(“i = %d j = %d\n”, i, j);
+                return 0;
+        }
+________________
+Arrays and Pointers
+                                                                                                                                 * In C, arrays are implemented as pointers to first element 
+int a[4];
+int b[2];
+int * p = a;  same as &a[0]
+*p = 10;
+p[0] = 20;
+p = b;
+*p = 30;
+p[0] = 40;
+
+                                                                                                                                 * character strings are arrays of characters 
+char s1[] = "Hello";
+char * s2 = "Hello"; // not the same thing as s1
+char * s3 = s1;
+s3[0] = 'M'; // changes s1 to "Mello"
+
+
+                                                                                                                                    * pointer arithmetic 
+p[1] = 70;
+*(p+1) = 70; // does the same thing
+
+for ( char *p = s1; *p; ++p ) // prints Mello
+   printf("%c", *p);
+________________
+Limitations of Fixed-Size Arrays
+                                                                                                                                       * size must be known at compile-time
+                                                                                                                                       * once it is allocated, array cannot grow
+                                                                                                                                       * size may depend on use
+                                                                                                                                       * dynamic allocation of an array gives us flexibility (use pointers with malloc() and free() )
+________________
+
+
+Arguments to main
+int main(int argc, char *argv[]) {
+    for (int i=0; i<argc; ++i)
+         printf("Arg %d is \"%s\"\n", i, argv[i]);
+}
+$ myProg foo bar baz
+Arg 0 is "myProg"
+Arg 1 is "foo"
+Arg 2 is "bar"
+Arg 3 is "baz"
+________________
+
+
+Character File I/O
+                                                                                                                                       * Example: copy input file to output file and count characters
+#include <stdio.h>
+int char_freq[255] = {0};
+int main(int argc, char *argv[]) {
+    FILE *ifp, *ofp;
+    char *inputFilename = argv[1];
+    char *outputFilename = argv[2];
+    int inch; /* why an int and not a char?? */
+    ifp = fopen(inputFilename, "r");
+    if ( ifp == NULL ) {
+        fprintf(stderr, "Can't open %s\n", inputFilename);
+        exit(1);
+    }
+    ofp = fopen(outputFilename, "w");
+    if ( ofp == NULL ) {
+        fprintf(stderr, "Can't open %s!\n", outputFilename);
+        fclose(ifd);
+        exit(1);
+   }
+    while ( (inch = fgetc(ifp) ) != EOF )
+    {
+       ++char_freq[inch];
+        fputc(ofp, inch);
+    }
+   print_char_freq();
+    fclose(ifd);
+    fclose(ofd);
+}
+________________
+Formatted File I/O
+                                                                                                                                       * Example: adds 10 points to every score in the specified input file
+#include <stdio.h>
+int main(int argc, char *argv[]) {
+    FILE *ifp, *ofp;
+    char *inputFilename = argv[1];
+    char *outputFilename = argv[2];
+    char username[100];
+    int score;
+    ifp = fopen(inputFilename, "r");
+    if ( ifp == NULL ) {
+        fprintf(stderr, "Can't open %s\n", inputFilename);
+        exit(1);
+    }
+    ofp = fopen(outputFilename, "w");
+    if ( ofp == NULL ) {
+        fprintf(stderr, "Can't open %s!\n", outputFilename);
+        fclose(ifd);
+        exit(1);
+   }
+    while ( fscanf(ifp, "%s %d", username, &score) != EOF )
+       fprintf(ofp, "%s %d\n", username, score + 10);
+     fclose(ifd);
+     fclose(ofd);
+}
+/* Sample input */
+klefstad 90
+smith 80
+jones 70
+anderson 50
+________________
+
+
+Structs
+                                                                                                                                       * a heterogenous group of data
+                                                                                                                                       * e.g.,
+        struct DataMix {
+                   char c;
+                int i;
+                long l;
+                double d;
+                void *p;
+        };
+
+
+struct DataMix dm;
+dm.c = ‘A’;
+dm.i = 1024;
+dm.l = 34567;
+dm.p = 0;
+printf("C = %c I = %d L = %d P = %d\n", dm.c, dm.i, dm.l, dm.p);
+
+
+                                                                                                                                       * typedef
+typedef char Buffer[50];
+struct Name {
+        Buffer first;
+        Buffer last;
+};
+struct Date {
+        int month, day, year;
+};
+struct Person {
+        struct Name name;
+        struct Date birthdate;
+};
+
+
+                                                                                                                                       * Padding may be inserted to meet bus alignment restrictions
+
+
+        struct DataMix {
+                   char c;
+                int i;
+                long l;
+                double d; // aligned on multiple of 8???
+                void *p;
+        };
+
+
+struct DataMix dm;
+printf("&C = %o &I = %o &L = %o &P = %o\n", 
+       &dm.c, &dm.i, &dm.l, &dm.p);
+printf("Each DataMix is %d bytes in size\n", sizeof dm); 
+________________
+
+
+Arrays of Structs
+                                                                                                                                       * Very common to use array of structures, like a list
+                                                                                                                                       * e.g.,
+#define CLASS_MAX_SIZE 450
+struct Person roster[+];
+int number_in_class = 0;
+How would you insert?
+How would you find?
+How would you remove?
+________________
+
+
+Unions
+                                                                                                                                       * allows any one of the fields to be alive
+                                                                                                                                       * size is max size of each alternative field
+struct taggedunion {
+        enum {UNKNOWN, CHAR, SHORT, INT, LONG, DOUBLE, POINTER} code;
+        union {
+                   char c;
+          short s;
+                int i;
+                long l;
+                double d;
+                void *p;
+        } un;
+};
+struct taggedunion tu;
+printf("Each TaggedUnion is %d bytes in size\n", sizeof tu);
+________________
+Function Pointers
+int f(int a, float b) /* function returing int */
+{
+        return a + b;
+}
+int g(int a, float b)
+{
+        return a * b;
+}
+int (*fp)(int a, float b); /* pointer to function like f */
+                                                                                                                                       * May be assigned a function
+fp = f;
+                                                                                                                                       * May be called either way below
+  (*fp)(2,5);
+or
+ fp(2,5);
+  printf("result = %d\n", fp(2,5));  /* fp’s value is f, calls f */
+                                                                                                                                       * Can change its value
+        fp = g;
+  printf("result = %d", fp(2,5)); /* now calls g not f */
+                                                                                                                                       * Really useful for function parameters
+int squares = {0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100};
+int sum(int a[], int size, int (*fp)(int a))
+{
+    int total = 0;
+    for (int i=0; i<size[ ++i)
+        total += fp(a[i]);
+    return total;
+}
+int div2(int i)
+{
+            return i / 2;
+     }
+     int main()
+     {
+         int sumSquareDiv2 = sum(squares, 11, div2); 
+         printf("%d\n", sumSquareDiv2);
+     }
+________________

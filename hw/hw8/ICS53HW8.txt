@@ -1,0 +1,15 @@
+﻿ICS 53
+HW 8
+1. (10 pts) Write a correct Makefile for your programs below using default rules and appropriate variable settings.  Also define clean and strip.
+2. (90 pts): Write two client/server programs as follows:
+   1. (40 pts) Write an iterative server that provides a directory listing of a specified directory on the machine running the server. Write a client program that takes a hostname and a list of directory and file argument and does an ls -l on each of the files on the specified host.  Test it on /etc and /bin on isis.ics.uci.edu.
+   2. (50 pts) Write a concurrent server that implements a remote copy of directory and contained files requested from your server (similar to how a web server delivers files when given “get” commands). Write a client that requests files from a server and builds a directory structure on the local machine into the client’s current working directory. Test it on /etc on isis.ics.uci.edu by running three clients simultaneously but in separate directories so you have three copies of the /etc directory in your account.
+        EXAMPLE OF USE
+        $ P=54321
+        $ server $P &
+        $ client `hostname` $P /etc
+        $ ls
+        etc (which will contains everything below /etc)
+   1. For each of these programs, choose a port that is the last five digits of your student ID.  If that does not work, modify the first digit until you find a port that is free.  Be sure your server and client use the same port number.
+NOTE: Periodically check your processes from the shell with ps aux, and kill any run-away processes with kill -9 pid.
+What to submit: Your programs and your Makefile.

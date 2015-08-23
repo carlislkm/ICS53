@@ -1,0 +1,12 @@
+﻿ICS 53
+HW 9
+1. I will provide you a working single-threaded client/server to use as a starting point for your solutions this week here.  Note each server will be a modification of this same server program and the client will be a modification of the client I provide you.  I got carried away with the client and it is nearly finished.
+2. (10 pts) Write a multi-threaded client that will do a remote copy (from server machine to client machine) of files from your servers below.  Your client should create 10 threads to read files, then start a timer, have each of the 10 threads copy all the (approximately 20) files in the list of files to copy (listed in the start I provide), then stop the timer, and report the elapsed user time.  Each thread should copy the files into a directory with a unique name, such as ./Thread_1, ./Thread_2, etc. where the integer is the number of the thread (so yours will have 1 through 10).
+3. (60 pts) Write the three multi-threaded servers below.
+   1. Thread Per Request Server 1 (20 pts) Write a multi-threaded server that delivers files to clients above using thread per connection (or request as there will be only one file requested per connection).  It will create a new thread for each client request. Note there are 10 threads each requesting a copy of 20 files, so there will be 200 threads created in this testing example.
+   2. Thread Pool Server 2 (20 pts) Write a multi-threaded server that delivers files to clients above, but use a synchronized queue between the thread that reads requests from the clients and a pool of 5 threads that process client requests.
+   3. Leader-Follower Server 3 (20 pts) Write a multi-threaded server that delivers files to clients above, but use a thread pool using leader-follower with 5 threads in the pool.
+1. (30 pts) Measure the performance of each of your three servers using your single multi-threaded client.  The measurements should be done on the client side using the timer class you used earlier in this class. Time the effort to copy the entire set of 10 threads X 20 files each = 200 files.
+2. Be sure to test your copy program to ensure it is making correct copies.  I suggest you copy the remote /usr/share/dict/linux.words, then use diff to compare your local copy to the local file in /usr/share/dict/linux.words to ensure the entire file was copied correctly from the remote machine.
+NOTE: Periodically check your processes from the shell with ps aux, and kill any run-away processes with kill -9 pid.
+What to submit: Your programs and your Makefile.

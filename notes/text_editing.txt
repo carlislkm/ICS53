@@ -1,0 +1,285 @@
+﻿Text Editing
+Klefstad
+
+
+Introduction and Motivation
+    . a text editor allows one to create and modify text files
+    . much of a programmers time is spent in an editor
+    . mastery of a text editor can significantly improve your speed
+        of interaction with the computer
+    . repetitous manual tasks can be reduced by using powerful
+        features of a good text editor
+
+
+Editing terms
+    . `buffer` - temporary storage for text
+    . `file` - a Unix text file
+    . `window` - a view of a portion of a buffer
+    . `command` - sequence of characters invoking an action
+    . `cursor` - indicates the position where editing will occur
+    . `saving` or `writing` a buffer to a file -
+        current contents of buffer is stored as value for Unix file
+
+
+Typical editing functions
+    . move the window and move the cursor over a buffer
+    . insert/delete text
+    . search for and replace text
+    . cut and paste text
+    . file input and output
+
+
+Terminal setup
+    . several programs, including vi and more, must know specifics of
+        your terminal 
+    . height, width, cursor address sequence, control characters,
+        padding, etc
+    . this information is stored in /etc/termcap database
+    . Unix must know your terminal type
+    . typically done in your .login with tset
+        . eg eval "`tset -Qs \?xterm`"
+
+
+Getting started with VI (or vim)
+    . % 
+ file
+    . "~" shows lines beyond the end of the buffer
+    . vi starts in `command mode`
+    . i, a, and o change to `insert mode`
+    . <esc> ends insert mode
+    . most editor commands can be preceded by an integer i to repeat a
+        command i times
+
+
+    . bottom line is the status line
+    . ZZ save if necessary and exit
+    . :q! - abort without saving
+    . :w! - write over if it overwrites a file of the same name
+
+
+Moving the screen
+    . kG - go to line k
+    . G - Go to the end of file
+    . n<enter> - move forward n lines
+    . n- - move back n lines
+
+
+    . /text<ret> - forward search with wrap around
+    . ?text<ret> - backward search with wrap around
+    . n - search for the next match, same direction
+    . N - search for the next match, opposite direction
+
+
+    . ^D - scroll down
+    . ^U - scroll up
+    . ^F - page forward
+    . ^B - page backward
+
+
+Cursor motion commands
+    . H - move to first line on the screen
+    . L - move to last line on the screen
+    . M - move to middle line on the screen
+    . h - move cursor left
+    . j - move cursor down
+    . k - move cursor up
+    . l - move cursor right
+    . <space> - same as l
+    . can also use arrow keys, but letters are (usually) faster
+
+
+   . ^ - move to beginning of current line
+    . $ - move to end of current line
+    . w - move forward word (b - backward)
+    . e - move to end of word
+
+
+    . m<char> - marks the current position char
+    . `<char> - go to mark for char
+    . '<char> - go to line containing mark for char
+    . `` - go to point of previous context
+    . '' - go to start of line of previous context (before last jump like with search)
+
+
+    . t<char> - move forward just before next occurence of char (T - back)
+    . f<char> - move forward to next occurence of char (F - back)
+    . ; - repeats previous f or F command
+    . , - repeats previous f or F command in other direction
+    . k| - move cursor to column k
+
+
+    . % - move to matching paren, bracket, curly brace
+    . ( - cursor left to beginning of sentence
+    . ) - cursor right to beginning of sentence
+    . {} - similar to () but for paragraphs
+    . [[ ]] - similar but for sections
+
+
+Typing or inserting text
+    . i<text><esc> - inserts text before the cursor (I - beginning of line)
+    . a<text><esc> - appends text after the cursor (A - end of line)
+    . o<text><esc> - opens a new line after current line and inserts text (O - before)
+    . ^V quotes the following control character so it may be inserted
+
+
+Erasing or deleting text
+    . x - delete characters to right of cursor (X - left)
+    . dd - deletes lines
+    . D - deletes to end of line
+    . J - joins next line to current line
+    . d<motion> - deletes between cursor and result of motion
+        . eg dw, dG, db, d$, d1G, dj, d'a
+
+
+    . :i,jd - deletes lines numbered i through j
+        . $ - end of file
+        . . - current line
+        . +4 - next four
+        . -3 - previous three
+        . $-10 - ten from end of file
+        . % - same as 1,$ (the entire file)
+
+
+Undo and repeat
+    . u - undo (powerful, but only undo last edit command)
+    . . (dot or period) - repeat last edit command
+
+
+Making small changes
+    . s - substitute (k characters or to f found character)
+    . r<char> - replace current character by char (R - replace mode)
+    . ~ - change the letter case of current character (and advance)
+    . cw<text><esc> - change word to text
+    . <n>s<text><esc> - substitute n characters with text
+
+
+    . xp - transpose the current character with the next
+    . dwwp - transpose the current word with the next word
+    . ddp - transpose the current line with the next line
+
+
+Text objects and operators
+    . movement commands often may be combined with edit commands
+    . d - delete
+    . c - change
+    . y - yank
+
+
+Cut and paste
+    . vi maintains several text buffers
+    . 26 named general purpose buffers a-z
+    . `dtb` - unnamed delete text buffer (the default)
+    . numbered buffers, 1-9, save last 9 blocks of deleted text
+    . d or y place text from the file buffer into a text buffer
+    . p (or P) place text from a text buffer into file buffer before (or after)
+
+
+    . by default, text goes to and from dtb
+    . preceding cut or paste command with buffer name will over-ride
+    . eg
+        "ayy - saves current line into buffer a
+        "ap - puts contents of buffer a into file buffer
+        "np - replaces nth previously deleted text
+
+
+File related commands
+    . vi automatically reads in file corresponding to argument file name
+    . :w - writes that file
+    . :w <file> - writes buffer to named file
+    . :w! <file> - writes buffer to named file, even if it exists
+    . :i,jw <file> - writes lines numbered i through j to file
+    . :r <file> - inserts contents of file after current line
+
+
+Text substitution
+    . :s/pattern/text/ - substitutes pattern with text in current line
+    . "&" represents pattern text, so
+    . :s/summer/each &/ - substitutes "summer" with "each summer"
+    . :s/pattern/text/g - substitutes all occurences in current line
+    . :/pat1/s/pat2/text/g - finds line containing pat1, substitutes
+        pat2 with text
+        . eg :/UNIX/s//Berkeley &/g
+
+
+Global changes
+    . :<range>g/pattern/ex-command - performs command on each line
+        within range containing pattern
+    . eg
+        :g/##/d - delete all lines containing "##"
+
+
+Indentation
+    . << - shift lines left (by shiftwidth)
+    . >> - shift lines right (by shiftwidth)
+    . k>> - shift k lines (same for <<)
+    . ><motion> - shift lines between current line and result of motion
+    . ts - tab stop, I usually set to 4 (or what indent you like)
+    . sw - shift width for > commands, I also set to 4
+    . sm - show matching paren, bracket, curly bracket when you type it or are over it
+    . st - smarttab uses spaces or tabs intelligently
+
+
+Search patterns
+    . `regular expressions` may be used in search patterns
+    . ^ - beginning of line
+    . $ - end of line
+    . [a-z] - any single character in the set or range
+    . [^a-z] - any single character not in the set or range
+    . a* - zero or more repetitions of a
+
+
+    . \< - beginning of word
+    . \> - end of word
+    . . - dot matches any single character
+    . \[ \] \* \$ \^ - the literal character following back-slash
+
+
+Setting vi options
+    . many options are available
+    . :set - lists all option settings if different than default
+    . :set all - lists all option settings
+    . :set option? - show the value of option
+
+
+    . options
+        . ai - auto indent (when you insert <return>), ^D to unindent
+        . ic - ignore case (on search)
+        . nu - display line numbers in left margin
+        . sm - show match for bracket when inserting a closing bracket
+        . et - expand tabs uses spaces instead of tabs
+        . read about tabs and indent http://tedlogan.com/techblog3.html
+        . and many more
+    . initialization/customization can be done with ~/.vimrc
+            a file of ex initialization commands in your login directory
+
+
+vi macros
+    . command macros
+        . :map key cmd-seq - maps key to cmd-seq
+        . map #n cmd-seq - maps Fn to cmd-seq (Fn = terminal function key)
+        . eg :map !f !}fmt^M
+        . eg :map !F !Gfmt^M
+        . :@x - executes ex command stored in buffer x
+            . useful for testing .exrc edits
+    . insert macros
+        . :map! key cmd-seq - maps key to cmd-seq when in insert mode
+        . eg :map! \co /* C */^[FCs
+
+
+Invoking the vi editor
+    . % vi [-t tag] [-r] [+ command] [-L] [Wn] file ...
+    . -r - recover a file saved by vi on process halt (system crash)
+    . -Wn - set window size to n (useful for low baud-rates)
+    . +command - starts by executing the command
+        . eg % vi +50 foo - starts on line 50
+    . -t tag - created by ctags
+
+
+Quick Reference cards (cheat sheets)
+    . http://tnerual.eriogerg.free.fr/vimqrc.pdf
+    . http://www.fprintf.net/vimCheatSheet.html
+    . http://vim.rtorr.com/
+
+
+Example configuration files (.vimrc)
+    . http://amix.dk/vim/vimrc.html

@@ -1,0 +1,356 @@
+﻿Linux
+Klefstad
+Commands and Filters
+
+
+Introduction
+    . one can compose programs interactivly or from a command file
+    . the user interface for programs is handled by the shell
+    . this encourages keeping programs simple with single purpose
+    . to use Unix effectively, you must
+        . learn the existing commands
+        . learn how to develop new commands
+        . learn how to select the right commands for your application
+    . WARNING: create a test directory with files for testing destructive commands
+
+
+    . programs are usually located in one of the following directories
+        /bin  /usr/bin  /usr/local/bin  /usr/bin/X11
+    . `filters` are programs that transform their input
+        . eg
+            echo - prints arguments - i.e., “print”
+            cat - opens files, sends contents to stdout
+            tee - reads stdin and copies to stdout and to a named file argument
+            tr - translates specific characters
+            sort - sorts the input lines, prints the sorted lines
+
+
+Head and Tail
+    . head -n file
+        . displays first n lines of file
+    . tail +n file
+        . displays the file from n lines to the end
+    . tail -n file
+        . displays the last n lines of file
+    . tail -f file
+        . keeps reading even after end of file
+        . useful when a file is being written
+    . tail -r file
+        . reverses the order of lines in a file
+
+
+Character translation
+    . tr [ -cds ] [ string1 [ string2 ] ]
+        translates corresponding characters in string1 to those in string2
+    . eg
+        tr A-Z a-z < file1 > file2
+        converts uppercase file1 to lowercase version file2
+    . tr options
+        -d Delete all input characters in string1
+        -s Squeeze all strings of repeated output characters that
+            are in string2 to single characters
+        -c Complement the set of characters in string1 with
+            respect to the universe of characters whose ASCII codes
+            are 01 through 0377 octal
+    . classic example
+        . tr -cs A-Za-z '\012'
+            translates files into a list of words one per line
+
+
+Tab expansion/unexpansion
+    . expand [ -tabstop ] [ -tab1,tab2,...,tabn ] [ filename ... ]
+        . expands tabs assuming tabs are tabstop characters wide
+        . eg
+            % expand -4 foo.txt > foo.expanded
+    . unexpand [ -a ] [ filename ... ]
+        . converts leading space sequences to tabs
+        . -a converts intra-line spaces
+        . eg
+            % unexpand -a foo.expanded > foo.txt
+
+
+Working with sorted files
+    . sort [options] [key ...] [file ...]
+        http://en.wikipedia.org/wiki/Sort_(Unix)
+    . may sort by any field within the line, or the whole line
+    . each key is of the form w.c
+        . w is the number of words to skip
+        . c is the number of charcters to skip within the word
+        . eg
+            % sort +2.3 -7.3
+
+
+    . sort key options
+        . f - ignore case
+        . n - treats key as a number not an ascii string
+        . r - sorts in reverse order
+    . eg to sort by login time, most recent first
+        % who | sort +4nr
+    . sort options
+        . u - only output one copy of equal lines, removing duplicates
+        . o filename - output to a specified file
+        . merge sorted files into one file
+
+
+    . look prefix file
+        . displays all lines in the given sorted file matching prefix
+    . comm [ -[1][2][3] ] file1 file2
+        . outputs three columns:
+            . 1 lines only in file1
+            . 2 lines only in file2
+            . 3 lines in both
+        . the options supress displaying the corresponding column
+
+
+The grep Commands
+    . these commands search files for a string or pattern
+        http://en.wikipedia.org/wiki/Grep
+    . each line matching the pattern is printed to output
+    . each reads the standard input if no files are given
+    . grep [options] pattern [filename...]
+        . allows limited regular expressions (same as vi)
+    . egrep [options] pattern [filename...]
+        . allows full regular expressions (same as awk)
+        . see text page 116 for summary of pattern language
+
+
+    . fgrep [options] string [filename...]
+        . fixed strings (no regular expressions)
+    . eg
+        . egrep '^([a-z]|[0-9])*$' *.c
+    . options
+        . -c - display a count of matches
+        . -i - ignore letter case
+        . -n - preceed each match with line number
+        . -l - list only names of files containing pattern
+        . -v - display only lines that do not match
+        . -w - match string only as a word, not within a word
+        . -e expr - useful when expr begins with a '-'
+        . -f filename - take expressions from specified file
+
+
+Searching the File Tree: find
+    . `find` locates files by name or by other characteristics
+          http://en.wikipedia.org/wiki/Find
+    . syntax can be painful - requires lots of quoting
+    . % find `file-list` `expression`
+    . eg
+        . % find . \(-name a.out -o -name '*.o'\) -exec rm {} \;
+        . % find . -type d -name 'src' -print
+
+
+    . expression operators
+        . -atime n - true if the file has been accessed in n days
+            +n means >n days, -n means <n days
+        . -mtime n - true if the file has been modified in n days
+        . -name pattern - true if the file name matches pattern
+        . -exec command - execute the shell command, returns the
+            status of the command; the command must be terminated
+            with \; and {} is replaced by the pathname of the
+            current file
+        . -newer file - true if current file is newer than file
+        . -print - always true, prints the path of the current file
+        . -type c - true if the type of file is c, where c is
+            . b - blocked special
+            . c - character special
+            . d - directory
+            . f - ordinary file
+            . l - symbolic link
+        . -prune - stops the recursive search below the current file
+        . -user user_id - true if file belongs to that user
+        . ! - negates the operator
+        . -o - logical or for two expressions (logical and is default)
+
+
+A Stream Editor: sed similar to ex (vim)
+    . sed script [file...]
+          http://en.wikipedia.org/wiki/Sed
+    . scripts are of the form
+        [ address [, address ] ] function [ arguments ]
+    . options
+        . -n - don't print after editing
+            . eg print each line containing pattern (similar to grep)
+                sed -n '/pattern/p' file
+
+
+    . some sed examples
+        . sed 's/Unix/UNIX/g ; s/uci/UCI/g' my_paper.tex
+            replaces all occurances of these words
+        . sed '/^$/d' paper.tex
+            deletes all blank lines
+        . sed '/^[ \t]*$/d' paper.tex
+            deletes all blank lines, possibly containing whitespace
+        . sed -n '/begin/,/end/p' paper.tex > begin_end_blocks
+            print all text between begin and end
+        . sed 'y/abc/ABC/' file
+            same as tr 'abc' 'ABC' file
+
+
+Pattern Processing: awk
+    . awk [-Fc] program [file...]
+           http://en.wikipedia.org/wiki/AWK
+    . program is of the form
+        pattern { action }
+    . fields of the input line
+        . fields are denoted by $1, $2, etc for the ith field
+        . $0 denotes the entire line
+    . expressions
+        . a blank between two expressions concatenates them
+    . options
+        . -Fc - c is used as the field separator instead of whitespace
+
+
+    . patterns
+        . regular expressions are same as egrep except they are
+            surrounded by slashes
+        . patterns are boolean expressions involving
+            . && - and
+            . || - or
+            . ! - not
+            . () - parentheses
+            . > - greater than
+            . < - less than
+            . >= - greater or equal
+            . <= - lesser or equal
+            . == - equal
+            . != - not equal
+            . expr ~ reg expr - expr contains reg expr
+            . expr !~ reg expr - expr does not contain reg expr
+        . patterns may be preceeded by line restrictions like sed
+            . eg
+                awk 'NR==10,NR==20 {print}'
+        . two special patterns
+            BEGIN {action} -- executed before processing input
+            END {action} -- executed after done with input
+
+
+    . actions
+        . actions are separated by newline or semicoln
+        . assignment
+            var = expr
+        . output
+            print expr [, expr]...
+            printf(...) -- same as C printf
+        . control flow
+            . if (condition) statement1 [else statement2]
+                . if condition is true execute statement1
+                    else execute statement2
+            . for (init; exit_test; generator) statement
+                . execute init, while exit_test is grue do statement
+                then do generator at loop bottom
+
+
+    . actions
+        . control flow (continued)
+            . while (condition) statement
+                . loop while condition is true
+            . break
+                . leave enclosing loop statement
+            . continue
+                . cycle back to top of loop
+            . next
+                . skip remaining commands in program, start next cycle
+            . exit
+                . exit the awk program
+            . { statement, statement, ...}
+                . a list of statements
+
+
+Viewing files with `more` or `less`
+    . more file - allows one to browse through a text file a screenful
+        at a time, eg
+        --More--(5%)
+        Most commands optionally preceded by integer argument k. Defaults in
+        brackets.
+        Star (*) indicates argument becomes new default.
+        ----------------------------------------------------------------
+        <space>      Display next k lines of text [current screen size]
+        z            Display next k lines of text [current screen size]*
+        <return>     Display next k lines of text [1]*
+        d or ctrl-D  Scroll k lines [current scroll size, initially 11]*
+        q or Q or ^C Exit from more
+        s            Skip forward k lines of text [1]
+        f            Skip forward k screenfuls of text [1]
+        b or ctrl-B  Skip backwards k screenfuls of text [1]
+        '            Go to place where previous search started
+        =            Display current line number
+        /<reg expr>  Search for kth occurrence of regular expression [1]
+        n            Search for kth occurrence of last reg expr [1]
+        !<cmd>       Execute <cmd> in a subshell
+        v            Start up /usr/ucb/vi at current line
+        ctrl-L       Redraw screen
+        :n           Go to kth next file [1]
+        :p           Go to kth previous file [1]
+        :f           Display current file name and line number
+         .            Repeat previous command
+        ---------------------------------------------------------------
+        --More--(5%)
+
+
+Building Pipelines with Filters
+    . qualities of filters
+        . they take input from stdin and produce output to stdout
+        . they perform some tranformation on the input
+        . input is data rather than commands
+        . they do not interact with a user (other than command arguments)
+        . error (or other) messages are sent to stderr
+    . filters are good because they are versatile
+        . their output may be directed to a file or another filter
+        . their input may be directed from a file or another filter
+        . eg
+            % fgrep -i "begin\ 
+            end" *.p | more
+            % history | tail -5 | sed 's/.*<tab>//' > file
+            % ls -l | grep ^d | sed 's/^d.*<space>//'
+
+
+Encrypting and Decrypting
+    . % crypt < cleartext > ciphertext
+        . prompts you for a password
+            Enter key:
+        . encrypts a file so no one else can read it
+    . % crypt < ciphertext > cleartext
+        . reverses the encription
+    . % vi -x file
+        . allows you to edit a file, but it is always encrypted when stored
+    . % crypt < file | lpr
+        . prints a crypted file
+
+
+Compressing and Decompressing
+    . file compression saves disk space and network transfer time
+    . % compress file
+        . converts it to `file.Z` which is usually much smaller
+    . % uncompress file.Z
+        . converts it to `file` which is the original file
+    . % zcat file.Z
+        . uncompresses and sends file to stdout
+    . % zmore file.Z
+        . more for viewing compressed files
+
+
+Backup Files on Tape: tar
+    . `tar` allows one to manage tarfiles
+            http://en.wikipedia.org/wiki/Tar_(computing)
+    . `tarfiles` can be either magnetic tapes or files
+    . useful for
+        . making magnetic tapes
+        . converting a directory structure to a file
+    . % tar command [tarfile] filename...
+
+
+    . tar command options
+        c - create a new tarfile and write the files onto the tarfile
+        r - append the files on the end of the tarfile
+        t - list the table of contents of the tarfile
+        u - update the tarfile with new files or files that have change
+        x - extract the named files from the tarfile
+        [014578] - a digit indicates which tape drive to use
+        v - "verbose" causes tar to print what it is doing
+        f - uses the next arguments as the names of the files
+            ("-" is stdin or stdout)
+    . eg
+        . % tar xvf "`tar t | grep '*.c'`"
+            . extracts files matching *.c pattern
+        . % cd fromdir; tar cf - . | (cd todir; tar xfBp -)
+            . similar to % cp -r fromdir/* todir

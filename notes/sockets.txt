@@ -1,0 +1,222 @@
+﻿UNIX
+Dr Raymond Klefstad
+
+
+Networks
+    . http://en.wikipedia.org/wiki/OSI_model
+
+
+The Socket Interface
+    . Sockets are an inter-process communication API
+    . Sockets were originally developed for TCP/IP protocols
+    . Uses Host and Port for addresses
+         . PIDs are local and transient, so they can’t be used
+    . A remote connection is represented by a 5-tuple
+        protocol type, local address, local port, remote address, remote port
+
+
+Communication Domains
+   . two domains: Unix and Internet
+   . `unix domain` (PF_UNIX)
+        . Communicate only with a process on the same machine 
+            . Uses UNIX filenames for connection point
+              between client and server processes
+        . Supports both reliable (SOCK_STREAM) and
+              unreliable (SOCK_DGRAM) local IPC
+        . Used for local X11 windowing traffic...
+        . pipes are `lobotomized' connection-oriented Unix domain sockets 
+    . `Internet domain or TCP/IP` (PF_INET)
+        . Communicate across network or on same machine
+         . uses host and port addresses
+            . eg "128.195.1.1 @ port 21"
+
+
+Five Types of Sockets, but only two common ones
+    . `Stream Socket`
+        . used for most Internet communication
+        . Service: reliable, bi-directional delivery of byte-stream data 
+        . Metaphor: a phone call
+        . eg
+            int s = socket (AF_INET, SOCK_STREAM, 0);
+            /* Note, s is a kernal descriptor like stdin, stdout, stderr */
+    . `Datagram Socket`
+        . used for X11 traffic, video
+        . Service: unreliable, unsequenced datagram
+        . Metaphor: sending a group of postcards
+        . eg
+            int s = socket (AF_INET, SOCK_DGRAM, 0);
+
+
+Socket Addresses
+    . A sockaddr structure differs according to the domain (UNIX vs. Internet)
+    . `General Format` - think of as base class for address
+        struct sockaddr { u_short sa_family; char sa_data[14]; };
+    . `Unix Domain` - think of as derived from sockaddr
+        struct sockaddr_un { 
+            short sun_family; char sun_path[108]; 
+        };
+    . `Internet Domain`- think of as derived from sockaddr
+        struct in_addr { unsigned long s_addr; };
+        struct sockaddr_in {
+            short sin_family; unsigned short sin_port;
+            struct in_addr sin_addr; char sin_zero[8];
+        };
+    . Always `zero-out' the address structure before using !!!
+    . General usage for Internet-domain service:
+        struct sockaddr_in addr;
+        memset (&addr, 0, sizeof addr);  // Note: zero first !!
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons (port_number);
+        addr.sin_addr.s_addr = htonl (INADDR_ANY);
+        if (bind (fd, (struct sockaddr *) &addr, sizeof addr) 
+            == -1)
+            ...;
+
+
+How Clients and Servers Communicate over Sockets
+    https://docs.google.com/open?id=0Bzv5LmqlazNHMGxUT01QWHc5Wm8
+
+
+Socket Operations
+    . `Client and Server Operations`
+        .socket() 
+            . Creates a socket and returns a descriptor
+        . this call fills in the local host and protocol part of the 5-tuple association
+            . int s = socket (int domain, int type, int protocol); 
+                . `domain` => PF_UNIX, PF_INET 
+                . `type of service` => SOCK_STREAM, SOCK_DGRAM 
+                . `protocol` => generally 0, but could be TCP, VMTP, NETBLT, XTP
+
+
+        . bind() 
+            . Associates a local address to an unnamed socket
+            . usually for server sockets only
+            . int bind (int s, struct sockaddr *addr, int addrlen);
+                . `addr` => local address
+                  (eg points to an Internet addr or a UNIX domain addr)
+                . `addrlen` => length of address
+
+
+        . close() 
+            . Close a socket
+            . int close (int s);
+
+
+        . shutdown() 
+            . Shutdown part or all of full-duplex connection 
+            . int shutdown (int s, int how);
+                . `how` is 0, disallows further receives
+                . `how` is 1, disallows further sends
+                . `how` is 2, disallows either sends and receives
+            . Note shutdown() does `not` close the descriptor
+
+
+        . getsockname() 
+            . gets address for local process connected to socket s
+            . int getsockname (int s, struct sockaddr *addr, int *addrlenptr);
+                . `addr` => address of local binding
+                . `addrlenptr` => ptr to length of address 
+
+
+        . getpeername() 
+            . gets address for remote process connected to socket s
+            . int getpeername (int s, struct sockaddr *addr, int *addrlenptr);
+                . `addr` => address of remote peer
+                . `addrlenptr` => ptr to length of address 
+
+
+. `Client-Oriented Operations`
+        . connect()
+            . fills in the rest of the 5 tuple after connection is accept()ed
+            . remote host and port address a client wishes to connect to
+            . int connect (int s, struct sockaddr *addr, int addrlen);
+                . `addr` => address of remote server 
+                . `addrlen` => length of address 
+
+
+. `Server-Oriented Operations`
+        . listen() 
+            . set the length of a TCP passive open queue
+            . places the socket into `passive-mode,' typical of a server
+            . int listen (int s, int backlog);    
+                . `backlog` => how many connection requests to queue
+                , will ‘refuse’ connections beyond that number
+
+
+        . accept()
+            . Returns a completed connection from queue
+            . socket has the full 5 tuple now...
+            . int accept (int s, struct sockaddr *addr, int *addrlenptr); 
+                . `addr` => address of remote server 
+                . `addrlenptr` => ptr to length of address 
+            . use returned socket for I/O not s
+
+
+        . select()
+            . Synchronous I/O demultiplexer
+            . useful for servers that have many open I/O connections (e.g,. client sockets)
+            . int select (int maxfd, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout); 
+Example using select()
+
+
+. `Data Transfer Operations`
+        . write() 
+            . Send a message over a socket:
+            . int write (int s, char *msg, int len);
+                . `msg` => buffer of data to send
+                . `len` => length of buffer
+             . returns the number of bytes written, may not be all you requested !!!
+
+
+        . read() 
+            . Receive a message from a socket:
+            . int read (int s, char *buf, int len);
+            . return the number of bytes read, will be upto len
+
+
+. `Option Management`
+        . setsockopt() 
+            . Sets options on a socket
+            . int setsockopt (int s, int level, int optname, void *optval, int optlen);
+        . getsockopt()
+            . Gets options regarding a socket
+            . int getsockopt (int s, int level, int optname, void *optval, int *optlenptr);
+
+
+        . Arguments for setsockopt() and getsockopt()
+            . `level` => protocol level (eg IP, TCP, socket, etc.) 
+                . eg IPPROTO_TCP, SOL_SOCKET
+            . `optname` => name of option
+                . eg SO_REUSEADDR, SO_LINGER, SO_ERROR,
+                  SO_BROADCAST, SO_SNDBUF, SO_RCVBUF
+            . `optval` => value of option
+            . `optlen` => length of option
+Socket Options
+SO reuseaddr and reuseport
+
+
+Auxiliary Networking Functions
+    . can translate between IP addresses and DNS symbolic names
+        . e.g.,  www.google.com  V.S. 64.233.160.0
+    . gethostname()
+        . Returns the primary name of the current host as an ASCII string
+        int gethostname (char *name, int namelen);
+    . gethostbyname()/gethostbyaddr()
+        struct hostent *gethostbyname (char *name);
+        struct hostent *gethostbyaddr (char *, int len, int type);
+    . struct hostent
+        struct hostent {
+            char *n_name; /* name of host */
+            char **h_aliases; /* alias list */
+            int h_addrtype; /* address type */
+            int h_length; /* length of addr */
+            char **h_addr_list; /* list of addrs */
+        };
+        #define h_addr h_addr_list[0]
+    . Note, hostnames/host numbers are stored in /etc/hosts
+        . Also accessible via DNS...
+
+
+Example: Internet Domain Stream Sockets
+Server: https://docs.google.com/open?id=0Bzv5LmqlazNHSVY4UzFENWF6bUU
+Client: https://docs.google.com/open?id=0Bzv5LmqlazNHRDNVQmk1RmtRZUE

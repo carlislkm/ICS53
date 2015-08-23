@@ -1,0 +1,298 @@
+﻿Linux
+Klefstad
+Writing Shell Scripts
+
+
+Introduction
+    . bash includes a programming language
+    . a shell script is similar to a C program, but interpreted, not compiled
+    . simple scripts can save you repeating frequent commands
+    . others can be parameterized to perform complex functions
+    . shell scripts are more portable compared to compiled programs
+    . script-like programs often can be written in C, but it is easier to write in bash
+    . WARNING: create a test directory with files for testing scripts
+
+
+Invoking Shell Scripts
+    . two ways to interpret a script, direct and indirect
+    . in either case, a new shell is invoked to interpret the script
+    . `direct interpretation`
+        % bash file [ arg ...] # bash interprets the commands
+    . `indirect interpretation`
+        . change mode of script text-file to be readable and executable
+            chmod a+rx my_script
+        . invoke like any other Unix command
+            my_script foo bar baz
+
+
+Who Interprets a Script
+    . by default, sh is invoked to interpret the script
+            . on Linux, sh is a link to bash
+    . you may force a specific command to interpret your script with #!, AKA sha-bang
+        . eg #! /bin/bash
+        . eg #! /bin/cat
+
+
+A Simple Example
+    . a shell script, called `which-friends`, to see if any of your friends are logged on
+         #! /bin/bash
+         # This script lists users whose name matches a grep
+         # pattern contained in the file ~/.friends
+         # For example, to show anyone whose last name
+         # either smith or jones the file would contain
+         # the pattern *smith|*jones
+         who | grep "`cat ~/.friends`"
+
+
+Script Parameters
+    . $# is the number of parameters
+    . $* is all the arguments
+    . $@ is all the arguments
+    . $i is the value of the ith argument, use ${i} if i is greater than 9
+    . special variables
+    . $0 is the path of the script (could be ./scriptfile)
+    . $$ is PID of shell interpreting the script, useful for temp file names
+    . $? is exit status of last command executed
+    . e.g.,
+        echo This script has $# arguments
+        echo They are: $*
+
+
+Expressions
+    . all values are strings
+    . may be used in while, if, and =
+    . strings of digits may represent numerical values
+    . arithmetic and conditional expressions are given in [ ] or to ‘test’
+        if test $f == 1 ; then echo $f is 1 ; fi 
+        if [ $f == 1 ] ; then echo $f is 1 ; fi 
+    . [[ ]] is more powerful than [ ], handles all operators and conditionals (see below)
+        if [[ $f -lt 10 ]] ; then echo $f is less than 10 ; fi 
+    . can also be arrays (note path is different than PATH)
+        path=(`echo $PATH | tr ":" " "`)
+        echo ${path[*]}    # prints the words in the path array
+
+
+If-Then Statement
+    . if statement simlar to C, use semicolons to put on one line
+        if list; then list; [ elif list; then list; ] ... [ else list; ] fi
+    . eg
+        if grep -q Bash $file
+       then
+            echo "$file contains at least one occurrence of Bash."
+        fi
+         if grep -q Bash $file;  then echo "$file contains at least one occurrence of Bash."; fi
+
+
+    . can also do conditional expressions (predicates) inside square brackets 
+        if ["$#" -lt 3 ]
+       then
+           echo "less than 3 arguments"
+       fi
+
+
+For Loop
+    . `for` executes the body once for each value in wordlist
+        for var [ in word list ] ; do list ; done
+    . for the ith iteration, var has value of the ith word
+    . eg to print each directory in path, one per line
+        path=(`echo $PATH | tr ":" " "`)
+        for f in ${path[*]} ; do echo $f ; done
+        for f in ${path[*]}
+        do
+            echo $f
+        done
+    . may also use C-like ‘continue’ within loops
+
+
+An Example
+#! /bin/bash
+path=(`echo $PATH | tr ":" " "`)
+for f in ${path[*]}
+do
+    if [ -d $f ]
+    then echo $f is a directory
+    elif [ -f $f ]
+    then echo $f is a plain file
+    else echo $f either does not exist or is some other type of file
+    fi
+done
+
+
+Operators
+    . most C operators are available in [[ ]]
+       id++ id--
+              variable post-increment and post-decrement
+       ++id --id
+              variable pre-increment and pre-decrement
+       - +    unary minus and plus
+       ! ~    logical and bitwise negation
+       **     exponentiation
+       * / %  multiplication, division, remainder
+       + -    addition, subtraction
+       << >>  left and right bitwise shifts
+       <= >= < >
+              comparison
+       == !=  equality and inequality
+       &      bitwise AND
+       ^      bitwise exclusive OR
+       |      bitwise OR
+       &&     logical AND
+       ||     logical OR
+       expr?expr:expr
+              conditional operator
+       = *= /= %= += -= <<= >>= &= ^= |=
+              assignment
+       expr1 , expr2
+              comma
+
+
+Conditionals used within [[ and ]]
+       -e file # True if file exists.
+       -f file # True if file exists and is a regular file
+       -d file # True if file exists and is a directory
+       -r file # True if file exists and is readable
+       -w file # True if file exists and is writable
+       -x file # True if file exists and is executable
+       -s file # True if file exists and has a size greater than zero
+       file1 -nt file2 # True if file1 is newer than file2, or if file1 exists and file2 does not
+       file1 -ot file2 # True if file1 is older than file2, or if file2 exists and file1 does not
+       -z string # True if the length of string is zero
+       -n string # True if the string is non empty 
+       string1 == string2 # True if the strings are equal
+       string1 != string2 # True if the strings are not equal
+       string1 < string2 # True if string1 sorts before string2 lexicographically
+       string1 > string2 # True if string1 sorts after string2 lexicographically
+       arg1 OP arg2 # OP is one of -eq, -ne, -lt, -le, -gt, or -ge.  Arg1 & arg2 are signed integers
+
+
+Input/Output
+    . ‘read’ reads a line from stdin into variable
+    . echo [ -n ] argument-list
+        . prints the argument list followed by newline
+        . -n suppresses newline
+    . eg
+echo -n "Delete file: $f? "
+read ans
+if [[ “$ans” == “[Yy]*” ]] ; then echo $f deleted ; fi
+     . another example
+#!/bin/bash
+# This script will test if you have given a leap year or not.
+echo "Type the year that you want to check (4 digits), followed by [ENTER]:"
+read year
+if (( ("$year" % 400) == "0" )) || (( ("$year" % 4 == "0") && ("$year" % 100 != "0") )) ; then
+   echo "$year is a leap year."
+else
+   echo "This is not a leap year."
+fi
+# run
+Type the year that you want to check (4 digits), followed by [ENTER]:
+2000
+2000 is a leap year.
+
+
+Shell Functions
+    . functions are really fast shell scripts
+    . get their own shell parameters
+    . also useful to define in .bashrc for aliases with parameters
+    . syntax
+        [ function ] name () compound-command [redirection]
+    . example
+function debecho () {
+ if [[ ! -z "$DEBUG" ]]; then
+    echo "$1"
+ fi
+}
+DEBUG=on
+Whatever=whatnot
+debecho $Whatever   # prints whatnot
+DEBUG=
+Whatever=notwhat
+debecho $Whatever   # (Will not print anything)
+
+
+While Loop
+    . `while` loops while an expression is true
+    . syntax
+        while list ; do list ; done 
+   . eg prints 5 4 3 2 1
+i=5
+while [[ $i > 0 ]]
+do
+    echo $i
+    i=$(( $i - 1 ))
+done
+
+
+Case (switch) Statement
+    . multi-way branch based on the value of a string expression
+    . case labels may contain normal file patterns
+    . syntax
+        case word in [ [(] pattern [ | pattern ] ... ) list ;; ] ... esac
+    . eg  extract out arguments into type
+            cfiles=””; flags=””; others=””;
+for f in $*
+do
+    case $f in
+        (*.c) cfiles=($f ${cfiles[*]}) ;;
+        (-*) flags=($f ${flags[*]}) ;;
+        (*) others=($f ${others[*]}) ;;
+    esac
+done
+if [ -n “$flags” ]
+then
+    echo cfiles = ${cfiles[*]} \; flags = ${flags[*]} \; others = ${others[*]}
+else
+    echo You forgot to pass any options. ; exit 1
+fi
+
+
+The Here Document
+    . to redirect input from the shell script itself, i.e., from `here`
+    . syntax
+       command <<[-]word
+                      here-document
+       word
+    . eg input text is variable and command substituted
+        cat <<end
+        $USER logged at `date` on machine `hostname`
+        end
+    . eg input text is quoted if word is quoted
+        cat <<"end"
+        $USER logged at `date` on machine `hostname`
+        "end"
+    . eg Leading tabs are stripped if you use “-”
+        cat <<-end
+                        $USER logged at `date` on machine `hostname`
+        end
+
+
+Exit from a shell
+    . exit will cause a shell script to terminate with a specified value
+    . exit sets the variable `status`, default value is zero
+    . syntax
+        exit [ expr ]
+    . `status` tells whether the last command succeeded of failed, e.g.,
+        do_something # $? is exit status of do_something command
+        if [[ $? != 0 ]] then
+            echo "something failed"
+            exit $?
+        fi
+
+
+Signal Handling in Scripts
+    . Scripts can catch and handle signals with ‘trap’
+        trap 'echo "Control-C typed" ; exit -1' 2
+           # SIGINT is 2
+        trap 'echo Variable Listing --- a = $a  b = $b' EXIT
+            # EXIT is a special pseudo-signal generated when a script exits
+
+
+Debugging Shell Scripts
+     . to test a script for syntax errors (without executing commands)
+        bash -n scriptname
+     . to echo each command before it is executed
+        bash -v scriptname
+     . to echo the result of each command
+        bash -x scriptname
+     . may be combined
+        bash -xv scriptname

@@ -1,0 +1,35 @@
+﻿ICS 53 Lab 4
+Remember you are not allowed to write any code until you start your scheduled lab time-slot.
+You may use any of the functions defined in string.h or ctype.h.
+You may use my stack or queue in ~klefstad/public/{stk,que} if you like.
+1. Write a program to evaluate reverse polish expressions with signed 32 bit integers.  Implement plus, minus, times, and divide.  http://en.wikipedia.org/wiki/Reverse_Polish_notation  Also implement the following commands
+p - print out the value on top of stack, 
+s - swap top two items on the stack,
+d - duplicate the top value of the stack
+sample input (a list of expressions)
+256 32767  2  *  2  + s / p
+-123456789 44 + 88 + 99  + 987654321  -  4 * 2 / p
+4 d d * * p
+sample output (the evaluated expressions)
+256
+-2222221758
+64
+1. Write a program to compute the prime factors of each number in the input. http://en.wikipedia.org/wiki/Prime_factor
+        sample input
+        100
+        76
+        48
+        36
+        sample output (you may choose either format)
+Prime factorization of 100 is 2 x 2 x 5 x 5 || 22 x 52
+Prime factorization of 76 is 2 x 2 x 19 || 22 x 19
+Prime factorization of 48 is 2 x 2 x 2 x 2 x 3 || 24 x 3
+Prime factorization of 36 is 2 x 2 x 3 x 3 || 22 x 32
+1. Write a program to generate a word ladder for each input word. You may use the dictionary in /usr/share/dict/linux.words  http://en.wikipedia.org/wiki/Word_ladder Input is a list of word pairs. Your program should print the word ladder for each pair starting at the first word and the intermediate words until it gets to the second word.  Here is a sample input:
+stone money
+sail ruin
+slow fast
+monk perl
+Here is a sample output for just the first pair of workds
+stone  store  shore  chore  choke  choky  cooky  cooey  coney  money
+(Remember, you select and solve two out of the three problems above.  Each correct oprogram is worth 50% of your lab grade for this week.  Each parner in the team gets the same score for the submission.  Programs not working by the end of the lab can get at most 25% if they are close but still have flaws.  You can not submit the first problem later for more credit.  Each team must solve one problem before the end of their lab Tuesday.  The other problem may be completed the same day or may be solved and submitted before the end of your lab on Thursday for full credit of 50%.  Each team member must be present in their lab during submission to receive credit for their lab problem.  If an odd number show up for lab, the last person must work solo.  If another person comes to lab late, they must join with any solo to form a group.)

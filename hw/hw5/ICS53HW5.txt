@@ -1,0 +1,44 @@
+﻿ICS 53
+HW 5
+1. (5 pts) Write a correct Makefile for building all your programs for this week. Do not use any default rules.
+2. (25 points)  Give the vim commands to do each of the following edits. 2 point each for correct answer. 1 point bonus for each very good answer (which uses minimal number of keystrokes). You just ran vim on a file which contains only one line:
+                        'Homer Simpson is intelligent.'
+   1. (3 pts) move to the beginning of the word 'intelligent' and change it to `an idiot`
+   2. (3 pts) mark where you are then insert the string '"IF" ' at the beginning of this line
+   3. (3 pts) move back to your mark then move to the end of the current word and append ' savant'
+   4. (3 pts) move back to the F in "IF" and change it to an f
+   5. (3 pts) insert a blank line before this line, write your file, and exit
+   6. (5 pts) Define an insert macro called \fo that inserts a C++ for loop with curly braces (indented as shown below) and leaves the user in insert mode just before the first semicolon. Use > for fields that must be filled in by the programmer:
+                for (> ; > ; > )
+{
+                        >
+                }
+   1. (5 pts) Define a command macro called !S that replaces all occurrences of <tab> in the file with four <spaces> (use <tab> and <space> to represent those characters).
+1. (30 pts) Signal Handling. Write a C program, called handle_signals, to do the following:
+      1. continually print X's on the screen using the following main program:
+int main() {
+// Turn off output buffering here if you like
+init_signal_handlers();
+while (1)
+// Print an 'X' and flush the output buffer here
+}
+      1. whenever the user types a ^C (interrupt) print an I, flush, DO NOT abort
+      2. whenever the user types a ^\ (quit) print a Q, flush, DO NOT quit
+      3. whenever the user types a ^Z (terminal stop) print an S, flush, then stop. You, the user, may resume the job with the fg command from the shell.  On the third ^Z, print a summary of the number of signals received as follows, then exit:
+Interrupt: 5
+Stop: 3
+Quit: 2
+      1. You should flush the output after printing each character to prevent problems with buffered output or just turn off output buffering - your choice. Also, you may use signal() or sigaction(), but sigaction() is the preferred way to handle signals as it is the new and improved interface.  Here is a link with an intro to signal handling: http://www.alexonlinux.com/signal-handling-in-linux
+1. (40 pts) Command shell. Write a program called my_shell, which is a step towards a simple command shell to process commands as follows:  print a prompt (e.g., “% “) then read a command on one line, then evaluate it.  A command can have the following form:
+commandName [ argumentList ] [ IORedirect ] [ IORedirect ]
+Where an argumentList is a list of zero or more words (no patterns allowed), IORedirect is either “< inFile” or “> outFile” or both where inFile and outFile are valid Unix file names. You will use versions of the system calls fork(), open(), dup2(), exec(), and wait() for this assignment.
+You should test my_shell with these commands:
+% /usr/bin/tee newOutputFile  # input from and output to the terminal
+% /usr/bin/tee newOutputFile < existingInputFile
+% /usr/bin/tee newOutputFile1 < existingInputFile > newOutputFile2
+1. If you want to plan ahead, next week, we will add pipes and background jobs. Only the first command in a pipeline can have its input redirected to come from a file and only the last command in a pipeline can have its output redirected to a file, so you can execute these commands:
+% /usr/bin/tee newOutputFile1 > newOutputFile2 < existingInputFile &
+% /bin/cat < existingInputFile | /usr/bin/tee newOutputFile1 > newOutputFile2
+% /bin/cat < existingInputFile | /usr/bin/tee newOutputFile1 > newOutputFile2 &
+NOTE: Periodically check your processes from the shell with ps aux, and kill any run-away processes with kill -9 pid.
+What to submit: your typed answers for 1 a through g, your program for question 3 and for question 4 and your Makefile.

@@ -1,0 +1,457 @@
+﻿UNIX
+Concurrency and Multi-threading
+
+
+Examples of Concurrency
+    . Hardware level
+        . device drivers and CPU
+        . multi-core computers
+        . multiple hosts on the same network
+    . Software level
+        . multiple UNIX processes on a single computer
+        . multiple threads within a process
+        . client/server or peer-to-peer on network
+
+
+Why Exploit Concurrency?
+    . Utilize multi-processing hardware
+         . eg multicore computers rendering 3-D video
+    . Simplify application design
+         . eg OS devices, processes, scheduler
+    . Improve efficiency, even on single processor computers
+        . Perform useful work while awaiting I/O
+            . eg disks, networks, terminals, printers
+    . Improve perceived response time for GUI interaction
+        . eg one thread to read user input, others to do graphics processing, network requests, ...
+    . Enhance performance of servers
+        . Utilize threads to handle multiple client requests
+
+
+Non-programming Examples
+    . Del-Taco style fast food restaurant
+        customer, orders/drinks/deliverer, food preparers
+    . Restroom at a gas station
+        clerk, keys, restrooms, customers
+    . Stages in an early car assembly line
+        each stage does their job, pass on to next stage
+
+
+Threads within a Process
+    . Typical Unix process starts with one thread of control
+        . eg C program begins with main thread calling main()
+    . Any program can create more threads within the same process
+    . Each process contains the following (shared by all threads)
+        Process ID, process group ID, user ID, and group ID
+        Environment
+        Working directory.
+        Program instructions
+        Registers
+        Stack
+        Heap
+        File descriptors
+        Signal actions
+        Shared libraries
+        Inter-process communication tools
+    . Each thread has its own:
+        Thread specific data
+        Stack
+        Stack pointer
+        Registers
+        Scheduling properties (such as policy or priority)
+        Set of pending and blocked signals
+
+
+pthread API
+    . POSIX provides API for
+        . thread creation & destruction
+        . thread synchronization and mutual exclusion
+        . and more
+    . synchronization is the biggest challenge
+        . 1) missing it leads to errors
+            . eg Thread-1: store 0, x
+                   Thread-1: load x, R0; incr R0; store R0, x
+                   Thread-2: load x, R0; incr R0; store R0, x
+        . 2) mis-use can lead to deadlock
+             . where no thread can run...
+                  http://en.wikipedia.org/wiki/Deadlock
+    . program must include pthread.h
+        #include <pthread.h>
+     . and link in library pthread
+         g++ main.cpp -lpthread -o main
+      . can look at pthread.h in /user/include
+
+
+Creating a new thread
+       int pthread_create(pthread_t * thread,
+             const pthread_attr_t * attr,
+             void *(*start_routine)(void*),
+              void * arg);
+    . creates a new thread, runs start_routine on it, passing in arg, ID is saved in thread
+    . arg is often pointer to struct containing multiple arguments (must use type cast)
+
+
+Exiting from a thread
+      void pthread_exit(void *value_ptr);
+     . value_ptr is returned to other thread joining this thread
+
+
+Waiting for a specific thread to complete (exit)
+    int pthread_join(pthread_t thread, void **value_ptr);
+    . pthread_join() blocks until the specified thread (with ID) exits
+    . value_ptr is set to the value returned from pthread_exit()
+    . analogous to wait() for processes
+
+
+Simple Example
+        // compile with gcc main.c -lpthread -o main
+
+
+#include <pthread.h>
+#define NUM_THREADS     5
+#define NUM_REPS     100
+
+
+void *doThreadWork(void *threadid)
+{
+     long tid = (long)threadid;
+     printf("Thread  %d has started\n", tid);
+     for (int i=0; i<NUM_REPS; ++i)
+     {
+         putchar('A' + tid);
+         fflush(stdout);
+     }
+     pthread_exit(NULL);
+}
+
+
+int main (int argc, char *argv[])
+{
+     pthread_t threads[NUM_THREADS];
+     for (long t=0; t<NUM_THREADS; t++)
+     {
+          printf("Creating thread %d\n”, t);
+          if (int rc = pthread_create(&threads[t], NULL, doThreadWork, (void *)t))
+          {
+              fprintf(stderr, "ERROR; return code from pthread_create() is %d\n”, rc);
+              exit(-1);
+          }
+     }
+
+
+     // could do pthread_join() for each created threads
+
+
+    /* Last thing that main() should do */
+    printf(“\n”);
+    pthread_exit(NULL);
+}
+
+
+Program Output
+    ( Note the output stream is not synchronized )
+Creating thread 0
+Creating thread 1
+Creating thread 2
+Creating thread 3
+Creating thread 4
+Thread  0 has started
+AAAThread  A1A has started
+BBBBBBBBBBBBBBBBBBBBBBBBBBBAThread  Thread  42 has started
+EA has started
+Thread  CAAAAABACA3EAA has started
+DDDDCDBCCCDCCCCCCCCCCCCDDDDBEBBDEEBEECEBECEEECACDCCCDCCCCCECCEEECACAACDCAAAAAAAAAAAAAAAAAAEACBAEADACAAAAAAAAAAAAAAAAAAADDDDDDDDDDDDDDDDDBDBDBBDEDDDDDDDDDADDDDBDEBBABAABCAEAADADBDDDDDDDBDDDDDDDDDDDDDDDDDDADDEDDDAAAAAAAAAAAAAAEEBAECBBBBECBBECCCDBCCCDCCDDDDDCCCCCCCCCCCCCCCCCCCCCCCCBBBBBABBABAEAECEBDCCAAAABBBBBAAAAAAABBBBBBCBBBEBBDBCEBBCDDDDDDDDDDBBBBBBBBCBCCCCCCCECBCCCBECCCBCBBBBBCCCCCEEEEEEEEEBEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+
+Synchronization Primitives
+    . threads share process address space resources
+    . `synchronization primitives' allow coordinated access to shared data
+    . see example https://computing.llnl.gov/tutorials/pthreads/#Mutexes
+    . main types of synchronization:
+        . `Mutual exclusion` locks (mutex)
+            . Used to serialize access to a shared resource
+        . `Condition variables`
+            . Used to block on a change of state
+
+
+Mutex API
+    pthread_mutex_init()
+    pthread_mutex_destroy()
+    pthread_mutex_lock()
+    pthread_mutex_unlock()
+    pthread_mutex_trylock()
+    pthread_mutex_timedlock()
+
+
+Simple Example with Mutex Synchronization
+// compiled with:  gcc main.c -lpthread -o main
+#include <pthread.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#define N_REPS 1000
+#define NUM_THREADS 3
+
+
+static int total = 0;
+pthread_mutex_t count_mutex;
+
+
+void increment(int & v)
+{
+        pthread_mutex_lock(&count_mutex);
+        v = v + 1; // possible race if multiple threads execute this at same time
+        pthread_mutex_unlock(&count_mutex);
+}
+
+
+void *inc_count(void *t)
+{
+  long my_id = (long)t;
+  for (int i=0; i<N_REPS; ++i)
+  {
+          increment(total);
+  }
+  pthread_exit(NULL);
+}
+
+
+int main (int argc, char *argv[])
+{
+  int i, rc;
+  pthread_t threads[NUM_THREADS];
+
+
+  /* Initialize mutex and condition variables */
+  pthread_mutex_init(&count_mutex, NULL);
+
+
+  for (int i=0; i<NUM_THREADS; i++)
+          pthread_create(&threads[i], NULL, inc_count, NULL);
+
+
+  /* Wait for all threads to complete */
+  for (i=0; i<NUM_THREADS; i++)
+    pthread_join(threads[i], NULL);
+
+
+  printf("Total is %d\n”, total);
+
+
+  /* Clean up and exit */
+  pthread_mutex_destroy(&count_mutex);
+  pthread_exit(NULL);
+}
+
+
+Program Output (with Mutex commented out)
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 2246  (WTH !??!?!?!)
+isis:threading $ main
+Total is 2439
+isis:threading $ main
+Total is 2759
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+
+
+Program Output (with Mutex locking)
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+isis:threading $ main
+Total is 3000
+
+
+Condition Variable API
+    pthread_cond_init()
+    pthread_cond_destroy()
+    pthread_cond_wait()
+    pthread_cond_signal() // signals just one thread
+    pthread_cond_broadcast() // signals all waiting
+    pthread_cond_timedwait()
+
+
+Example with Condition Variable Synchronization
+// compiled with:  gcc main.c -lpthread -o main
+#include <pthread.h>
+#include <unistd.h> // for sleep()
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#define NUM_THREADS  3
+#define TCOUNT 10
+#define COUNT_LIMIT 12
+
+
+int     count = 0;
+int     thread_ids[3] = {0,1,2};
+pthread_mutex_t count_mutex;
+pthread_cond_t count_threshold_cv;
+
+
+void *inc_count(void *t)
+{
+  int i;
+  long my_id = (long)t;
+
+
+  for (i=0; i<TCOUNT; ++i)
+  {
+    pthread_mutex_lock(&count_mutex);
+    count++;
+
+
+    /*
+       Check the value of count and signal waiting thread when condition is
+       reached.  Note this occurs while mutex is locked.
+    */
+    if (count == COUNT_LIMIT)
+    {
+      pthread_cond_signal(&count_threshold_cv);
+      printf("inc_count(): thread %ld, count = %d  Threshold reached.\n", my_id, count);
+    }
+    printf("inc_count(): thread %ld, count = %d, unlocking mutex\n", my_id, count);
+    pthread_mutex_unlock(&count_mutex);
+
+
+    /* Do some "work" so threads can alternate on mutex lock */
+    sleep(1);
+  }
+  pthread_exit(NULL);
+}
+
+
+void *watch_count(void *t)
+{
+  long my_id = (long)t;
+  printf("Starting watch_count(): thread %ld\n", my_id);
+  /*
+    Lock mutex and wait for signal.  Note pthread_cond_wait()
+    will automatically and atomically unlock mutex while it waits.
+  */
+  pthread_mutex_lock(&count_mutex);
+  while ( count < COUNT_LIMIT )
+  {
+    pthread_cond_wait(&count_threshold_cv, &count_mutex);
+    printf("watch_count(): thread %ld Condition signal received.\n", my_id);
+    count += 125;
+    printf("watch_count(): thread %ld count now = %d.\n", my_id, count);
+  }
+  pthread_mutex_unlock(&count_mutex);
+  pthread_exit(NULL);
+}
+
+
+int main(int argc, char *argv[])
+{
+  int i, rc;
+  long t1=1, t2=2, t3=3;
+  pthread_t threads[3];
+  pthread_attr_t attr;
+
+
+  /* Initialize mutex and condition variables */
+  pthread_mutex_init(&count_mutex, NULL);
+  pthread_cond_init(&count_threshold_cv, NULL);
+
+
+  /* allow new threads to be subordinate to this thread (joinable) */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+
+  pthread_create(&threads[0], &attr, watch_count, (void *)t1);
+  pthread_create(&threads[1], &attr, inc_count, (void *)t2);
+  pthread_create(&threads[2], &attr, inc_count, (void *)t3);
+
+
+  /* Wait for all threads to complete */
+  for (i=0; i<NUM_THREADS; i++)
+    pthread_join(threads[i], NULL);
+  printf ("Main(): Waited on %d  threads. Done.\n", NUM_THREADS);
+
+
+  /* Clean up and exit */
+  pthread_attr_destroy(&attr);
+  pthread_mutex_destroy(&count_mutex);
+  pthread_cond_destroy(&count_threshold_cv);
+  pthread_exit(NULL);
+}
+
+
+Program Output
+inc_count(): thread 2, count = 1, unlocking mutex
+Starting watch_count(): thread 1
+inc_count(): thread 3, count = 2, unlocking mutex
+inc_count(): thread 2, count = 3, unlocking mutex
+inc_count(): thread 3, count = 4, unlocking mutex
+inc_count(): thread 2, count = 5, unlocking mutex
+inc_count(): thread 3, count = 6, unlocking mutex
+inc_count(): thread 2, count = 7, unlocking mutex
+inc_count(): thread 3, count = 8, unlocking mutex
+inc_count(): thread 2, count = 9, unlocking mutex
+inc_count(): thread 3, count = 10, unlocking mutex
+inc_count(): thread 2, count = 11, unlocking mutex
+inc_count(): thread 3, count = 12  Threshold reached.
+inc_count(): thread 3, count = 12, unlocking mutex
+watch_count(): thread 1 Condition signal received.
+watch_count(): thread 1 count now = 137.
+inc_count(): thread 2, count = 138, unlocking mutex
+inc_count(): thread 3, count = 139, unlocking mutex
+inc_count(): thread 2, count = 140, unlocking mutex
+inc_count(): thread 3, count = 141, unlocking mutex
+inc_count(): thread 2, count = 142, unlocking mutex
+inc_count(): thread 3, count = 143, unlocking mutex
+inc_count(): thread 2, count = 144, unlocking mutex
+inc_count(): thread 3, count = 145, unlocking mutex
+Main(): Waited on 3  threads. Done.
+
+
+Web References
+http://randu.org/tutorials/threads
+
+
+Producer:
+while (true) {
+ /*produce item v */
+ pthread_mutex_lock (&M);
+ while ((in + 1) % n == out) pthread_cond_wait(&Out_CV, &M);
+ b [in] = v;
+ in = (in + 1) % n;
+ pthread_cond_signal (&In_CV);
+ pthread_mutex_unlock (&M);
+}
+Consumer:
+while (true) {
+ pthread_mutex_lock (&M);
+ while (in == out) pthread_cond_wait(&In_CV, &M);
+ w = b [out];
+ out = (out + 1) % n;
+ pthread_mutex_unlock (&M);
+ pthread_cond_signal (&Out_CV);
+ /*consume item w */
+}

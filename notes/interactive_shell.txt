@@ -1,0 +1,297 @@
+﻿Linux
+Klefstad
+
+
+Interactive Use of the Shell
+
+
+Introduction
+    . bash is an interpreter for the sh command language
+    . a shell reads, parses, and evaluates commands
+    . `built-in` commands are executed within the shell program itself
+        . eg cd, echo, kill, jobs
+    . `regular` commands invoke executable programs or shell scripts
+        . eg ls, rm, gcc, make, gdb
+
+
+Command Execution
+    . shell prints the prompt (which you can customize)
+    . a command is read, broken into words, placed on the history list
+    . if command is an absolute path, that program is run
+    . otherwise, directories in `PATH` variable are searched for an
+        executable file matching the command name
+    . a new process is spawned with `fork()`
+    . a shell script is interpreted by a subshell
+    . a binary is loaded with a call to `execve()`
+
+
+Session Control
+    . source file
+        . causes the current shell to read commands from file
+    . login [ username ]
+        . terminate current login shell and invoke login program
+        . .bash_login is sourced after sourcing .bash_profile or .bashrc
+    . logout
+        . .bash_logout is sourced
+        . then login shell exits
+    . suspend
+        . stop the shell as if it had been sent the stop signal
+        . useful when connecting over the network, or with su
+
+
+Command Hashing
+    . when a command is given, it is found in your PATH, then put in a hash table
+    . this enables faster lookup
+    . hash
+        . prints commands in your hash table
+
+
+I/O Redirection
+    . cmd < file
+        . redirect standard input from file
+    . cmd > file
+        . redirects stdout to file
+    . cmd < ifile > ofile
+        . redirects stdin from ifile and stdout to ofile
+    . cmd >& file
+        . redirect both stdout and stderr to file
+    . cmd >> file
+        . append the output of cmd to the end of file
+
+
+Pipes
+    . cmd1 | cmd2
+        . redirects input of cmd2 to be the (std) output of cmd1
+    . cmd1 |& cmd2
+        . redirects input of cmd2 to be the output (including stderr) of cmd1
+    . cmd1 < ifile | cmd2 > ofile
+        . ifile is input to cmd1
+        . stdout of cmd1 is input to cmd2
+        . output of cmd2 goes to ofile
+    . cmd1 | tee file | cmd2
+        . tee copies input to file and its output
+        . useful for saving the intermediate result
+
+
+Job Control
+    . % jobs [ -l ]
+        . shows the list of active jobs, -l includes the process ids
+    . ^Z stops the job in the foreground
+        . ‘suspend’ stops a foreground shell (perhaps via ‘su’)
+    . bg [ %job ]
+        . run the current or specified job in the background
+    . fg [ %job ]
+        . bring the current or specified job to the foreground
+    . % [ job ] [ & ]
+        . brings job to the foreground, & continues job in the background
+
+
+    . ps
+        . shows the processes owned by your current login shell
+    . ps gaux
+        . shows all the processes on your system, eg
+            user      pid %cpu %mem   sz  rss tt stat start  time command
+            klefstad  3901 38.5 10.1  128  352 p3 R    14:04   0:00 ps -gaux
+            and many more ...
+    . kill [ -sig ] [ p_id ] [ %job_id ]
+        . sends a signal sig to the process pid or the job job_id
+    . kill -l
+        . causes a list of signals to be printed
+        . some useful signals:
+            INT(2) QUIT(3) KILL(9) TSTP(20) CONT(18)
+            BUS(7) SEGV(11) ALRM TERM STOP
+    . stop [%job]
+        . stop the current or specified background job
+
+
+Notification of job completion
+    . when a background job terminates, you will get a message
+        [1]    Done             command-that-succeeded
+        [2]    Exit 1           command-that-failed
+    . you are notified only after each interactive command
+    . to get immediate notification, even if you’re in editor
+         set -o notify
+
+
+Long-Running Programs
+    . you can log out with background jobs
+    . output should be redirected so you can see the result of the command
+    . eg
+        gcc million_line_program.c -o my_program >& compile.log &
+    . you can see the output produced by this job with `tail`
+    . eg
+        tail -f compile.log
+    . tail keeps reading output added to compile.log
+
+
+Job Priority
+    . each job has a priority
+         . -20 (most favorable scheduling) to 19 (least favorable)
+    . nice changes a jobs priority
+    . % nice -10 ps -l
+        uid pid.. pr st tt time command
+        218 23904 15 S. p4 0:03 -csh (tcsh)
+        218 25246 39 R. p4 0:00 ps -l
+    . renice changes the priority of a specified process or job
+        . % renice priority pid
+
+
+History Substitution
+    . HISTSIZE=n
+        . sets the number of commands to save
+    . history  [n]
+        . displays the history list
+            n - shows last n commands
+    . bash allows Emacs-like command editing of history list
+    . bash also allows indirect substitutions (the original)
+        . !! - previous command
+        . !n - command numbered n
+        . !prefix - command beginning with prefix
+        . !?string - command containing string
+        . ^str1^str2 - redo last command substituting str2 for str1
+    . word designators
+        . history:designator - selects a specified word within a command
+        . 0 - the first word
+        . n - the nth argument
+        . ^ - the first argument
+        . $ - the last argument
+        . x-y - a range of words
+        . * - all the arguments
+    . modifiers
+        . word-designator:modifier - to select parts of a designated word
+            h - head
+            t - tail
+            r - root
+            e - extension
+            s/l/r/ - substitute r for l
+
+
+Alias Substitution
+    . alias allows you to define abbreviations for useful commands
+        . alias name=string
+            . defines alias name to be string
+. eg
+     alias j=jobs
+                 alias h=history
+        . string is substituted for name in a command
+        . arguments are left unchanged
+        . e.g.,
+                % h 10    # expands to ‘history 10’
+        . unalias name
+            . removes the alias definition for name
+        . alias
+            . displays all defined aliases
+    . bash does not allow arguments to an alias, use functions instead
+          
+Variable Substitution
+    . convention is variables are all upper case
+HOSTNAME=isis.ics.uci.edu
+USER=klefstad
+HOME=/home/klefstad
+SHELL=/bin/bash
+TERM=xterm
+HISTSIZE=100
+MAIL=/var/spool/mail/klefstad
+PATH=/usr/bin/:/bin:/usr/csshare/bin:/usr/local/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/local/X11:/usr/local/bin/X11:/usr/openwin/bin:.
+PWD=/home/klefstad
+LOGNAME=klefstad
+    . variables are assigned with `=` without any spaces around it !!!!
+        PATH=.:/bin:/usr/bin        # command directory path
+    . variables can be arrays
+        message=(hi there how are you today)
+    . $var or ${var} - gives the value of variable var
+       echo ${message[1]}         # prints there
+       echo ${message}             # prints hi
+       echo ${message[*]}         # prints hi there how are you today
+    . # gives number of elements in strings or arrays
+       echo ${#message}             # prints 2 as there are two characters in “hi”
+       echo ${#message[1]}         # prints 5 as there are five characters in “there”
+       echo ${#message[*]}         # prints 6 as there are 6 words in messages array
+    . variables are substituted within double quotes, not within single quotes
+    . ‘export’ allows passing variables to sub-processes (either way works)
+        export PATH=$PATH:/bin:/usr/bin:.
+        PATH=$PATH:/bin:/usr/bin:. ; export PATH
+    . otherwise, variables are local to this shell
+
+
+Command substitution
+    . a command enclosed in backquotes (`...`) is performed in a subshell
+    . its standard output is broken into separate words all on one line
+    . each newline is replaced by a space
+    . this result substituted in the command for the call
+    . eg
+        % echo `cat file`
+        % files=(`ls`)
+        % dir="`echo $PWD`"
+        % f=/usr/src/foo.cpp
+        % root_name=`basename $f .cpp`
+        % path_name=`dirname $f`
+
+
+XX Filename substitution
+    . ~ - your login directory
+        . echo ~/bin
+    . ~user - login directory for user
+        . echo ~klefstad/bin
+    . * - matches any (zero or more) characters
+        . echo *.cpp
+    . ? - matches any single character
+        . echo chapter?.tex
+    . [ ... ] - matches any single character in the set
+        . echo my_c_program.[cho]
+    . {str,str,... } - expand to each string in the list
+        . echo document.{tex,log,aux}
+    . patterns can be combined
+        . echo ~klef*/{bin,src}/[a-z]*.{sli,tex}
+    . multiple matching files are sorted
+
+
+Quoting
+    . backslash (\)
+        . quotes the next character (no matter what it is)
+        . eg
+            echo \& \! \[
+        . \NEWLINE is treated as a SPACE - useful multi-line commands
+    . single quotes ('...')
+        . quotes a string of characters
+        . only history substitution is performed on the string
+        . eg
+            echo '[a + b >= c * d]'
+
+
+    . double quotes ("...")
+        . quotes a string of characters like single quotes
+        . variable and command substitution are performed on the string
+        . in command substitution, only NEWLINES separate distinct words
+        . eg
+date_array=(`date`)
+date_string="`date`"
+echo ${date_array[*]} \| $date_string
+# prints 'Thu May 7 13:05:02 PDT 2013 | Thu May 7 13:05:02 PDT 2013'
+echo ${#date_array[*]} \| ${#date_string[*]}
+#prints  ‘6 | 1’
+
+
+Example .bash_profile or .bashrc
+    . variables
+        PS1="\h:\W \$ " # Set my custom prompt string
+        umask 077 # turn off rwx for go
+        ulimit -c 0 # prevent large core files
+        set -o notify # want immediate background job completion notification
+       set -o noclobber # don’t want to overwrite existing files on output redirect
+       set -o ignoreeof # don’t logout with ^D (EOF)
+        export EDITOR=vim # use vim whenever I need an editor
+       export  PATH=${HOME}/bin:${PATH}:.   # add my bin and “.” to path, note dot at end
+    . aliases
+        alias h=history
+        alias c=clear
+        alias j=jobs
+        alias m=less
+        alias s=source
+        alias ls='ls -F'
+        alias ll='ls -lF'
+
+
+Example .bash_logout
+        find . -name ‘core’ -exec /bin/rm -f {} \; &  # remove any core files I created this session
+        clear # clear the screen

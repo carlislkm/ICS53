@@ -1,0 +1,216 @@
+﻿The File System In Unix
+Klefstad
+
+
+Introduction
+    . `file system` - the software that supports file management
+    . example operations: creation, deletion, protection, and organization
+    . Unix provides a hierarchical (tree structured) organization
+    . Four types of files are:
+        . ordinary file - text, program, or data
+        . directory - contains names & addresses of other files
+        . special file - represents an I/O device
+        . link - a pointer to another file
+
+
+Directories
+    . a directory is a list of pairs: name, i-number
+    . name is a string up to 255 characters
+    . i-number is an index into the `i-list`
+    . the `i-list` is an array of i-nodes
+    . an `i-node` is a record containing all the information about a file
+    . created with mkdir() mkdir man page
+
+
+Directory commands
+    . cd [ dir ]
+    . chdir [ dir ]
+        . change the shells working directory to dir, defaults to $home
+    . pushd [+n | dir]
+        . push dir onto directory stack and connect to it
+        . with no arguments, it swaps the top two directories
+        . +n swaps top with nth stack entry
+    . popd [+n]
+        . pops the directory stack and connects to new top directory
+        . +n discards the nth stack entry
+    . dirs [ -l ]
+        . print the directory stack, -l means suppress using ~ abbreviation
+
+
+Examining directories from C
+    . `scandir` is a C routine to convert a directory into an array of structs
+         #include <sys/types.h>
+         #include <sys/dir.h>
+         typedef struct direct dir, *dir_ptr;
+         void main(int argc, char *argv[]) {
+            int i;
+            char *dirname = "/";
+            dir_ptr *namelist;
+            extern int alphasort(dir_ptr *d1, dir_ptr *d2);
+            int number_of_entries = scandir(dirname, &namelist, 0, alphasort);
+            if (number_of_entries == -1)
+                perror(argv[0]), exit(1);
+            for (i=0; i<number_of_entries; i++)
+                printf("%s\n", namelist[i]->d_name);
+         }
+
+
+Hard links
+    . a `hard link` is a normal directory entry of the form: name i-number
+    . it is indistinguishable from any other file entry
+    . restricted to ordinary files on same file system
+    . % ln foo fool
+        . `fool` is a hard link to file `foo`
+    . % rm fool
+        . removes the hard link fool
+        . removing last link to a file frees the file space
+
+
+Symbolic links
+    . a `symbolic link` is a directory entry of the form:
+        new_name path_to_existing_file
+    . treated as a hard link by most programs
+    . allowed for any file including directories and files on other
+        file systems
+    . % ln -s foo foos
+        . `foos` is a symbolic link to file `foo`
+    . % rm foos
+        . removes the symbolic link foos
+        . removing original file creates a dangling reference
+
+
+More File Protection
+    . -rw-r--r-- 1 klefstad 978 Apr 15 2014 Foo
+    . protection format is USER-GROUP-OTHERS
+    . example first bits: d - directory; l - symbolic link
+    . protection field format is READ-WRITE-EXECUTE
+    . a letter means access, - means no access, s for x means set-userid
+
+
+Meaning of protection for directories
+    . x allows (search) access to a directory
+        . allows cd, pwd, a path containing that directory
+    . r means you can read the contents of the directory
+        . allows ls, pattern matching
+    . x without r allows reference, but no ls
+    . w allows creating or removing files in that directory
+
+
+Default file protection
+    . your umask is xor'ed with protection bits when you create a file
+    . % umask
+        . displays your file creation mask
+    . % umask value
+        . sets file creation mask to value
+            022 - prevents write access for group others
+            066 - prevents read, write for group and others
+            077 - prevents read, write, execute for group and others
+
+
+File Status
+    . `stat` provides file status information from i-node, eg % ls -gls
+        . mode - protection
+        . links - number of hard links
+        . owner - file owner's user id
+        . group - file's group id
+        . size - bytes contained in file
+        . last access - time when file was last read or written
+        . last modify - time file was last written
+        . last change - time of last status change
+        . device - where the file is stored
+        . i-number - index of real file
+        . block size - optimal block size for I/O
+        . block count - number of file blocks in this file
+
+
+    . example using `stat`
+         #include <sys/types.h>
+         #include <sys/stat.h>
+         void main(int argc, char *argv[]) {
+            char *path = "/";
+            struct stat buf;
+            if ( stat(path, &buf) == -1 )
+                perror(argv[0]), exit(1);
+            printf("Links: %d Size: %d\n", buf.st_nlink, buf.st_size);
+         }
+   . another example
+        http://stackoverflow.com/questions/13554150/implementing-the-ls-al-command-in-c
+#include <sys/types.h> 
+#include <sys/stat.h> 
+#include <unistd.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <dirent.h> 
+int main(int argc, char* argv[]) 
+{ 
+    DIR *mydir; 
+    struct dirent *myfile; 
+    struct stat mystat; 
+    mydir = opendir(argv[1]); /* should do error checking */
+    while ((myfile = readdir(mydir)) != NULL) 
+    { 
+        stat(myfile->d_name, &mystat); 
+        printf("%d", mystat.st_size); 
+       printf(" %s\n", myfile->d_name); 
+    } 
+    closedir(mydir); 
+}
+
+
+Some File-Related Commands
+    . wc - display a count of lines, words, characters
+        . wc [ -lwc ] [ filename ... ]
+        . l - counts lines
+        . w - counts words
+        . c - counts characters
+    . touch - updates the modification date for files
+    . diff - compares two files and outputs the difference
+        . differences are reported as `ed` commands
+        . options
+            . -b - ignore trailing blanks
+            . -i - ignore letter case
+            . -w - ignore all blanks
+
+
+Owner and group
+    . each user belongs to one group by default
+        . /etc/passwd - contains your group
+        . /etc/group - contains other groups
+    . % chgrp group_name file
+        . changes the file group to group_name
+    . % chown owner_name file
+        . changes the file owner to owner_name
+
+
+Establishing a group
+    . groups are useful for collaborative work
+    . system administrator adds group name and members to /etc/group
+    . create a directory, set its group with chgrp
+    . any file created in this directory will have that group
+    . % ls -lg
+        . also shows the group id of files
+
+
+Access control enforcement
+    . each process has a user id and a group id
+    . they are used to determine access
+    . they default to those of the invoking user
+    . set-userid and set-groupid bits for an executable allow
+        that program to assume the userid or groupid of that
+        executable
+    . eg mail is owned by root, so it can modify the system mail
+        boxes owned by recipients of your message
+
+
+Removable file systems
+    . the root file system is required and is hard-wired
+    . removable file systems are mounted under the root file system
+        . e.g., solid state or portable disks
+    . % mount device directory [-r]
+        . mounts device as directory, -r means device is read-only
+    . % mount
+        . shows the names of all file systems
+    . % umount
+        . unmounts a file system
+    . % df
+        . shows the space usage on all file systems

@@ -1,0 +1,250 @@
+﻿Linux Primer
+Raymond Klefstad, Ph.D.
+
+
+A login session
+    login
+        . user_id, password
+        . uppercase login causes uppercase mode
+        . runs your shell, then sources both files .bash_profile then .bashrc
+        . allows you to enter commands until you logout
+    logout
+        . sources .bash_logout, then runs login program in place of your shell
+    passwd
+        . allows you to change your password
+    last
+        . shows the login sessions for a specified user_id
+
+
+The user interface
+    . command processor is called a `shell`
+        . sh - the Bourne shell (after S. Bourne)
+        . csh - the C shell (B. Joy)
+       . bash - the Bourne again shell (GNU sh)
+    . a simple command is a list of words
+        . first word is the command name
+        . others are arguments to the command
+        . e.g., $ ls *.h *.cc
+
+
+Bash
+    . home directory is ~/ or /home/klefstad
+    . PATH has list of directories to search for commands you give
+    . to add to the current path
+        PATH=$PATH:~/bin:.
+
+
+Some basic commands
+    . echo -- prints its arguments
+    . date -- gives current date and time
+    . hostname -- gives the name of the computer you are running
+    . who -- lists all users who are logged on
+    . pwd -- shows the directory you are currently in
+
+
+    . ls -- lists the names of files contained in a directory
+    . cat -- copies contents of named files to its output
+    . more/less -- allows a user to browse over text
+    . man -- provides on-line Unix documentation
+
+
+Useful control characters
+    . for input editing and program control
+        . character erase -- backspace
+        . word erase -- ^W
+        . line erase -- ^U
+        . literal quote the next typed character -- ^V
+        . interrupt the current program -- ^C
+        . suspend the current program -- ^Z
+        . suspend output to terminal -- ^S
+        . resume output to terminal -- ^Q
+        . discard output to terminal -- ^O
+        . send end-of-file signal to program reading from terminal -- ^D
+
+
+Text editing
+    . a text editor is for creating and modifying text files
+    . requires correct terminal setting
+        . tset term  # usually an xterm if using X11 (i.e, nx)
+    . % vi file
+        itext<esc>ZZ
+    . for a summary of commands, see man
+
+
+Accessing files and directories
+    . Unix file system is hierarchical
+        . a `regular file` contains program text or data
+        . a `directory` contains names and addresses of other files
+        . each user has a `home directory` with same name as login name ($HOME)
+    . you can specify a file in one of three ways
+        . a simple file name
+            foo.c
+        . absolute path name (or full path name)
+            /home/klefstad/src/foo.c
+            ~klefstad/src/foo.c
+        ~/src/foo.c
+        . relative to the current working directory
+            src/foo.c
+
+
+    . you can change the current working directory
+        . cd -- stands for Change Directory
+        . "." -- stands for the current directory
+        . ".." -- stands for the parent of the current working directory
+        . eg
+            cd ../bin
+    . scratch files whose names start with "," or "#" are deleted periodically
+
+
+Handling files and directories
+    . mkdir -- create a new named directory
+    . cp -- copy one file to another
+    . mv -- move a file to another name and/or location
+    . rm -- delete a file from a directory
+    . rmdir -- delete a directory
+
+
+Protecting files: access control
+    . each file has protection
+    . there are four classes of users
+        . u - the owner of a file, AKA user
+        . g - members of a group with access to the file
+        . o - others (all users except the owner)
+        . root - a super user has access to all files
+    . three possible permissions
+        . r - read
+        . w - write
+        . x - execute
+
+
+    . examining protection of a file
+        . ls -l
+        . eg
+            % ls -l
+            drwxr--r-- 15 klefstad      512 Sep  25 12:11 Mail
+    . changing protection of a file
+        . chmod <new protection> <file names>
+        . eg
+            % chmod go-r Mail
+            % ls -l
+            drwx------ 15 klefstad      512 Sep  25 12:11 Mail
+        . more examples
+            . chmod o-w Mail
+            . chmod g+x Mail
+            . chmod a=rw Mail
+
+
+Redirecting input and output
+    . every Unix program has 3 I/O streams
+        . stdin -- 0 input
+        . stdout -- 1 output
+        . stderr -- 2 error message output
+    . all three default to/from user's terminal
+    . input and/or output may be redirected from/to a file
+        . ls > foo
+        . cat < foo
+        . cat < foo > bar
+
+
+    . input and/or output may be redirected from/to another command
+        . ls | more
+        . called a `pipeline`
+    . redirection allows composition and customization of simple commands
+
+
+Creating and running your own program
+    . source code is entered into a file
+    . file name is given a standard extension indicating its type
+        . eg .c .h .f .p .a .l .o
+    . compiler or interpreter allows execution of the program
+        . enter the program source code
+            % vi hello_world.c
+            i
+            #include <stdio.h>
+            int main()
+            {
+                printf("Hello world\n");
+                return 0;
+            }<esc>ZZ
+        . compile and link your program
+            % gcc hello_world.c
+        . run the executable
+            % a.out
+
+
+Recording Output and Printing Files
+    . lpr file
+        . sends file to the print queue
+        . options
+            -#n - print n copies of the file
+            -Pprinterid - prints the file on the named printer
+            -n - use cat instead of pr for printing a file
+    . lpq
+        . shows the print jobs waiting in the print queue
+        . options
+            -Pprinterid - prints the file on the named printer
+    . lprm
+        . removes a print job from the print queue
+        . options
+            -a - remove all of your print jobs
+            -Pprinterid - prints the file on the named printer
+    . To capture a session
+        % script
+        % gcc hello_world.c -o hello_world
+        % hello_world
+        ^D
+        % lpr typescript
+        % lpq
+        Rank   Owner      Job  Files     Total Size
+        1st    klefstad   635  intro.txt 3490 bytes
+
+
+Information about other users
+    . to see who is logged on
+        % who
+        % w
+        4:17pm up 1 day, 42 mins, 22 users, load average: 0.01
+        User tty   login@  idle jcpu pcpu what
+        Ray  ttyp8 4:30am       51  20    gcc -c hello_world.c
+
+
+Controlling multiple jobs
+    . one can do more work in parallel by using background jobs
+        % g++ big_program.cc >& output &
+        [1] 2014
+        % jobs
+        [1]  + Running    gcc big_program.c > & output
+        % vi foo.cc
+        ^Z
+        Stopped
+        % jobs
+        [1]  - Running    g++ big_program.c > & output
+        [2]  + Stopped    vi foo.c
+    . there are various ways to refer to a job (job_id)
+        . % -- the current job
+        . %n -- job number n
+        . %string -- job whose command matches the string
+        . %+ %-
+
+
+    . some useful job control commands
+        % kill %1 -- aborts job #1
+        % fg %vi -- brings job #2 to the foreground
+        % bg -- continues the current job in the background
+        % job_id -- same as % fg job_id
+    . to abort the foreground job
+        ^C
+    . to abort the foreground job and force it to dump core
+        ^\ 
+    . to abort any job
+        % kill -9 job_id
+
+
+Consulting documentation
+    . on-line manual
+        % man -k topic -- searches for topic in topic summaries
+        % man program -- displays the manual pages for program
+        % man section program -- faster lookup if you know the section
+    . to find descriptions of bash built-in commands, cd, echo, jobs, etc
+        % man bash
+    . and there is always google

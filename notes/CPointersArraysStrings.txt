@@ -1,0 +1,119 @@
+﻿C Pointers, Arrays, Strings
+Raymond Klefstad, Ph.D.
+________________
+Simple Arrays
+* a fixed size, single-dimensional array of elements of the same type
+* EG an array of three integers 
+int a[3] = {0, 1, 2};
+
+* processed naturally with a for loop 
+for ( int i = 0; i < 3; i++ )
+ a[i] += 5; // add 5 to each element of array a
+
+* can access individual elements directly 
+a[2] = a[0]; // assign value at a[0] into memory at a[2]
+________________
+   * can print them out 
+for ( int i = 0; i < 3; i++ )
+ printf( "%d\n", a[i] );
+
+   * you must keep track of the array size 
+#define A_LENGTH 3
+int a[A_LENGTH];
+void print()
+{
+   for ( int i = 0; i < A_LENGTH; i++ )
+     printf( "%d\n", a[i] );
+}
+
+________________
+Character Arrays (AKA character strings)
+      * character strings are arrays of characters terminated by '\0'
+      * tricky thing is you need an extra element for the terminator
+      * Three examples (of the string containing "abc") 
+char s1[4] = {'a','b','c','\0'};
+char s2[4] = "abc";
+char s3[] = "abc";
+________________
+Searching a character string for a specified character
+         * to find the index of an element containing a specified value 
+int findIndexOfChar(char c, char s[])
+{
+ for ( int i = 0; s[i] != '\0'; i++ )
+   if ( s[i] == c )
+     return i;
+ return -1;
+}
+
+         * example of use 
+int main()
+{
+ char s[] = "Hello There";
+ int posT = findIndexOfChar( 'T', s );
+ if ( posT == -1 )
+   printf("T is not in %s\n", s);
+ else
+   printf("T is at position %d\n", posT);
+ s[posT] = 'W';
+ printf("%s\n", s); // prints: Hello Where
+}
+________________
+String Library Functions
+            * important low-level C-string utilities 
+ #include <string.h>
+int          strlen(char s[]);
+char [] strcpy(char s1[], char s2[]);
+char [] strdup(char s[]);
+char [] strcat (char s1[], char s2[]);
+    int          strcmp(char s1[], char s2[]);
+________________
+Pointers and Addresses
+               * pointers contain the address of some object
+               * allow access to that object
+               * can have multiple pointers to an object 
+int i = 10;
+
+               * a pointer contains the address of some object 
+int * p = & i; // & gives address of object i
+int * q = & i;
+i = 50; // changes i directly
+*p = 60; // changes i indirectly
+*q = 70; // changes i indirectly
+________________
+                  * pointers can be changed to point to other objects 
+int k = 20;
+p = & k; // p now points to k
+*p = 60; // changes k indirectly
+
+                  * zero is used for null address (means pointing to nothing) 
+p = 0; // or NULL
+
+                  * indirection through null address is an error 
+*p = 100; // should cause run-time error, e.g., segmentation fault
+
+________________
+Arrays and Pointers
+                     * In C, arrays are implemented as pointers to first element 
+int a[4];
+int b[2];
+int * p = a;  same as &a[0]
+*p = 10;
+p[0] = 20;
+p = b;
+*p = 30;
+p[0] = 40;
+
+                     * character strings are arrays of characters 
+char s1[] = "Hello";
+char * s2 = "Hello"; // not the same thing as s1
+char * s3 = s1;
+s3[0] = 'M'; // changes s1 to "Mello"
+
+
+                        * pointer arithmetic 
+p[1] = 70;
+*(p+1) = 70; // does the same thing
+
+for ( char *p = s1; *p; ++p ) // prints Mello
+   printf("%c", *p);
+________________

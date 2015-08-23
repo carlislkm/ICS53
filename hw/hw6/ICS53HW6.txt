@@ -1,0 +1,21 @@
+﻿ICS 53
+HW 6
+1. (10 pts) Write a correct Makefile for building all your programs for this week. Use default rules and set default rule variables appropriately to use gcc as your C compiler and include the best possible debugging info for gdb in your executable programs. Define a pseudo target called “clean” that removes the specific .o files and another called “strip”, that removes the gdb info from the executables.
+2. (20 pts) Write a C program to solve this popular job interview problem: Given an array input[] of n integers, construct an array output[] (of same size) such that output[i] is equal to the product of all the elements of input[] except input[i]. Solve it without division operator and in O(n) time and space. (Note the simple and obvious solution is O() or uses division to remove the ith element or multiplication by the inverse which is the same as division
+          Example: input = {10, 3, 5, 6, 2} output = {180, 600, 360, 300, 900}
+Do not look at on-line solutions until after you solve it yourself. Your program should read a list (or vector) of N numbers from the standard input, one number per line, and will output the answer list (or vector) one product number per line. (SPOILER TEXT IN WHITE: you will need one vector to store the input numbers, one to store the product of numbers below the ith, one to store the product of numbers above the ith.  Then you can compute (and print) the answers by combining the values from above and below in a separate pass. END OF SPOILER)
+   1. (30 pts) Write the following Unix commands using grep, awk, sed, at, calendar, find, rm, and mv. Each should be single-line command, but you may use semicolon. You may not be able to do a perfect job, but try your best.
+   1. print all lines containing integer literals in the files *.c in the current directory
+   2. print all calls to printf in the files *.h and *.c
+   3. delete all blank lines from a file called foo.c (actually modify foo.c, but be careful about I/O redirection as cat < foo > foo will not work as you might like it too.)
+   4. move all files anywhere below your home directory that have the extension `.o` or `.out` into a special directory called `.trash` contained in your home directory. Be careful not to move files from .trash to .trash (hint: use find). Also, you should create .trash before executing your command.
+   5. list the names of files in all directories named `bin` on the local machine (hint: use find)
+   6. list the names of all files larger than 20 blocks in your account directory (hint: use find)
+   1. (40 pts) Command shell. Add pipes and background jobs. Check out this diagram of how pipe might be handled. Only the first command in a pipeline can have its input redirected to come from a file and only the last command in a pipeline can have its output redirected to a file, so you can execute these commands:
+% tee newOutputFile1 > newOutputFile2 < existingInputFile &
+% cat < existingInputFile | tee newOutputFile1 > newOutputFile2
+% cat < existingInputFile | tee newOutputFile1 > newOutputFile2 &
+% cat < existingInputFile | tr A-Z a-z | tee newOutputFile1 | tr a-z A-Z > newOutputFile2
+% cat < existingInputFile | tr A-Z a-z | tee newOutputFile1 | tr a-z A-Z > newOutputFile2 &
+NOTE: Periodically check your processes from the shell with ps aux, and kill any run-away processes with kill -9 pid.
+What to submit: Your programs and your Makefile.

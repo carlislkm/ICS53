@@ -1,0 +1,72 @@
+Principles in
+System Design
+Review
+
+What did we explore this term?
+Agile Software Development
+test driven development/acceptance
+synergy of pair programming
+always working software
+always write clean code! From the start.  Keep clean.
+responding to change
+A common suite of tools, language, API
+Linux, C, POSIX
+Hands-on System Programming
+Concurrency, Synchronization, I/O
+
+
+Agile Principles
+Customer satisfaction by rapid delivery of useful software
+Welcome changing requirements, even late in development
+Working software is delivered frequently (weeks rather than months)
+Close, daily cooperation between business people and developers
+Projects are built around motivated individuals, who should be trusted
+Face-to-face conversation is the best form of communication (co-location)
+Working software is the principal measure of progress
+Sustainable development, able to maintain a constant pace
+Continuous attention to technical excellence and good design
+Simplicity—the art of maximizing the amount of work not done—is essential
+Self-organizing teams
+Regular adaptation to changing circumstance
+
+Common Tools
+C - still the most popular programming language
+base of other top 5
+Linux (Unix)
+programmer’s dream
+supports needs and extends easily
+POSIX
+common vocabulary for OS services
+foundation for most other languages
+
+System Programming
+Concurrency
+fork(), exec(), wait()
+pthread_create(), pthread_join()
+Synchronization
+pipe(), signal(), kill()
+socket(), bind(), listen(), accept(), connect()
+I/O
+read(), write()
+dup2()
+file system
+
+Final Quiz Topics
+pipe(), fork(), dup2(), exec(), wait()
+pthread_create(), pthread_join(), mutex_*()
+socket(), bind(), listen(), accept(), connect(), shutdown()
+I/O parsing input, string handling
+Bash Scripts
+Linux commands (find, grep, | > < ....)
+gcc, make, gdb
+Solve problems you know well first,...
+
+Writing correct code…..
+Know system call arguments & return val
+at least all the ones we used in HW/QZ
+sockets(), et. al.
+pthreads_*()
+fork(), pipe(), etc
+Don’t worry about lines of code
+Make it readable, a human must grade it
+Remember quiz 5?  the easiest to grade

@@ -1,0 +1,81 @@
+﻿ICS 53 Lab 2
+Remember you are not allowed to write any code until you start your scheduled lab time-slot.
+You may use any of the functions defined in string.h or ctype.h.
+1. Write a program to parse URLs into components.   Input, from stdin, will be a list of URLs, one per line.          http://en.wikipedia.org/wiki/Uniform_resource_locator  Output should be a variable-length list of components which represent the parts of the URL.  Print a blank line after each URL.  A URL may have the syntax:
+        scheme://domain:port/path?query_string#fragment_id
+And many of these parts are optional.  Only given fields should be listed in the output for this URL. Output should follow the following form (bold is a literal string you will print and the non-bold in angle brackets will be whatever string you found for that part in the URL):
+        scheme: <scheme>
+        domain: <domain>
+        port: <port>
+        path: <path>
+        query_string: <query>
+        fragment_id: <fragment>
+        <blank line>
+
+
+Here are some more samples for your testing
+https://apis.google.com/js/client.js
+http://www.facebook.com/pages/Learn-the-Net/330002341216
+ftp://rtfm.mit.edu/pub/
+https://www.google.com/search?q=ebay
+www.learnthenet.com/web-at-a-glance/url-examples/
+http://my.ebay.com:80/ws/eBayISAPI.dll?MyEbayBeta&MyEbay=&gbh=1&guest=1#myfragment
+
+
+Sample output for the last two URLs above:
+        domain: www.learnthenet.com
+        path: web-at-a-glance/url-examples/
+        <blank line>
+        scheme: http
+        domain: my.ebay.com
+        port: 80
+        path: ws/eBayISAPI.dll
+        query_string: MyEbayBeta&MyEbay=&gbh=1&guest=1
+        fragment_id: myFragment
+        <blank line>
+
+
+1. Write a program to count the frequency of occurance of every character in the input.  The printable characters in ASCII are from space ‘ ‘ to tilde ‘~’ inclusive.  Output, to stdout, will be a list of pairs from space through tilde with an integer after the character indicating how many times it appeared in the input.  Then print how many whitespace characters (space, tab, newline) then how many other characters (non printable non whitespace).  Note each space character will be counted twice as a space and as whitespace.  Only print the ones that have a count greater than zero (so the number of lines will vary and will only report counts for characters that appeared in the input). Use the man page for bash for your test input.  Here is a sample output,
+        ‘ ‘ 24
+             ‘!’ 3
+             ‘“‘ 21
+         …
+             ‘}’ 14
+             ‘~’ 2
+             whitespace characters 123
+             other characters 12
+
+
+1. Write a program to convert Roman Numerals into equivalent Decimal Numerals. Input, from stdin, will be a list of Roman Numerals one per line.  Output will be a list of pairs: the roman numeral an arrow then the decimal numberal equivalent of the Roman Numeral in the input.
+http://sizes.com/numbers/roman_numerals.htm
+Input example:
+II
+IV
+VIII
+XVI
+XXXII
+LXIV
+CXXVIII
+CCLVI
+DXII
+MXXIV
+MMXLVIII
+MMMMXCVI
+MMMMMMMMCXCII
+Output example:
+II => 2
+IV => 4
+VIII => 8
+XVI => 16
+XXXII => 32
+LXIV => 64
+CXXVIII => 128
+CCLVI => 256
+DXII => 512
+MXXIV => 1024
+MMXLVIII => 2048
+MMMMXCVI => 4096
+MMMMMMMMCXCII => 8192
+
+
+(Remember, you select and solve two out of the three problems above.  Each correct oprogram is worth 50% of your lab grade for this week.  Each parner in the team gets the same score for the submission.  Programs not working by the end of the lab can get at most 25% if they are close but still have flaws.  You can not submit the first problem later for more credit.  Each team must solve one problem before the end of their lab Tuesday.  The other problem may be completed the same day or may be solved and submitted before the end of your lab on Thursday for full credit of 50%.  Each team member must be present in their lab during submission to receive credit for their lab problem.  If an odd number show up for lab, the last person must work solo.  If another person comes to lab late, they must join with any solo to form a group.)

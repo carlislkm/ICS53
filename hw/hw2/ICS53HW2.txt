@@ -1,0 +1,60 @@
+﻿ICS 53
+HW 2
+1. (50 points) Write all 22 of the library functions defined by string.h for working with c-strings and memory as documented here http://www.tutorialspoint.com/c_standard_library/string_h.htm. http://www.codingunit.com/c-tutorial-strings-and-string-library-functions Write a C program to test your implementations of each of your string/memory functions from string.h.  Write at least three test cases per string function.  main can call each of the 22 test function (so it may be longer than 5 lines).  Write one test function for each string function that has at least three test cases.  These test function may also exceed the 5 line limit.
+
+
+For strxfrm, call your strncpy appropriately without doing any local translation.  For strcoll, call strcmp appropriately.  More specifically, you may ignore LC_COLLATE completely. 
+
+
+Declare your own errno variable and an enumeration type for the errors you want.  Declare an array of strings indexed by this.  strerror() should return the message at errorMessages[errno];  If you prefer, you may detect any error in use of your string functions, print an appropriate error message to stderr immediately instead of using errno and strerror() as done by the string.h functions in the C library.  If you opt for the latter, you should have strerror() always return one string "string error: to be done";
+
+
+The ICS 53 grader has created a codebase start for this project.  You can read about it here https://piazza.com/class/i4ls0lsggr67g2?cid=91
+
+
+1. (50 points) Write a program, called parseC, to parse a C program into tokens. Pay special attention to identifiers, numbers, string literals, character literals, operators, and other special symbols.  You should recognize and discard program comments.  Input should be read from stdin and output should be written to stdout with one token per line. Do not print any other output other than the tokes as we will use an automated script to test that your program functions correctly.  Use your solution to homework 1 as test input for this program.  Use Bash I/O redirection to test this program on your homework 1 solution (assuming it is in a file musicLibrary.c) like this: 
+$ parseC < musicLibrary.c > tokens
+
+
+Sample input
+int main(int argc, char *argv[])   /* here is a comment */
+{
+        for (int i=0; i<10; ++i)
+        printf(“\”Hello\” she said.\n”);
+}
+Sample output
+int
+main
+(
+int
+argc
+,
+char
+*
+argv
+[
+]
+)
+{
+for
+(
+int
+i
+=
+0
+;
+i
+<
+10
+;
+
+
+++
+i
+)
+printf
+(
+“\”Hello\” she said.\n”
+)
+;
+}

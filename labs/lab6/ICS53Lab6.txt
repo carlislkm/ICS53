@@ -1,0 +1,31 @@
+﻿ICS 53 Lab 6
+Remember you are not allowed to write any code until you start your scheduled lab time-slot.
+You may use any of the functions defined in string.h or ctype.h.
+You may use my stack or queue in ~klefstad/public/{stk,que} if you like.
+1. Write a program which reads two arbitrary-length DNA sequences, which are composed of nucleotides, then matches them for optimal local alignment and outputs the strings with dash “-” inserted where another nucleotide must be inserted to make them match. Hint: use Smith-Waterman algorithm.  Input is two DNA sequence strings, e.g.,
+Input
+S1 = ACACACTA
+S2 = AGCACACA
+Output
+S1 = A-CACACTA
+S2 = AGCACAC-A
+1. Write a program that plays one player Blackjack against the dealer.  Play starts with a fresh deck of 52 shuffled cards (AKQJ1098765432 of Spades, Hearts, Diamonds, and Clubs).  You may use AC for ace of clubs, 2D for two of diamonds, etc. Cards are either in play, in the deck, or in the used pile.  Cards are dealt to player and dealer.  After the hand, any used cards are placed in the used pile and are out of play until the next shuffle.  Play continues until there are no cards left in the deck, then the cards in the used pile are reshuffled and placed back in the deck.  Allow player to hit or stay or bet, then keep track of winnings. Each player starts with $20 and can make bets in whole dollars only. Each hand starts with a $1 ante. Your program must determine which hand wins and keep track of who wins the pot.  You may IGNORE double down and split described in the wikipedia page.
+2. Write a pair of C programs to do run-length encoding of black and white images. rle will read a series of lines from the standard input, each containing a line of Ws, for white, and Bs, for black, and will write the run-length-encoding for each line to the standard output.  un_rle will do the inverse, input will be the run-length-encoding for an image and the output will be the W and B for the uncompressed black and white image. Write your program so that it will work with any capital letter A-Z (e.g., R - Red, G - Green, Y - Yellow, C - Cyan) in the input and output, not just for B and W.
+$ rle < input > output
+Input:        WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWW
+WWWWWWWWWWWWWBWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWW
+Output:
+12W1B12W3B24W1B9W
+13W1B11W3B24W1B9W
+
+
+$ un_rle < input > output
+Input:
+12W1B12W3B24W1B9W
+13W1B11W3B24W1B9W
+Output:
+WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWW
+WWWWWWWWWWWWWBWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWW
+
+
+(Remember, you select and solve two out of the three problems above.  Each correct oprogram is worth 50% of your lab grade for this week.  Each parner in the team gets the same score for the submission.  Programs not working by the end of the lab can get at most 25% if they are close but still have flaws.  You can not submit the first problem later for more credit.  Each team must solve one problem before the end of their lab Tuesday.  The other problem may be completed the same day or may be solved and submitted before the end of your lab on Thursday for full credit of 50%.  Each team member must be present in their lab during submission to receive credit for their lab problem.  If an odd number show up for lab, the last person must work solo.  If another person comes to lab late, they must join with any solo to form a group.)
