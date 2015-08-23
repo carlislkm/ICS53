@@ -1,0 +1,12 @@
+//Kevin Carlisle
+//82682616
+//ICS53 Hw5
+//Problem 2
+
+A) 3w ce an idiot <esc>
+B) ma 0 i IF <esc>
+C) `a w i  savant <esc>
+D) 0 l rf
+E) <shift>O <esc> <shift> :wq
+F) :map! \fo for(>; >; >)<CR>{<CR><TAB>><CR>}<ESC>ggwli
+G) :map !S :%s/<tab>/<space><space><space><space>/g<CR> 
